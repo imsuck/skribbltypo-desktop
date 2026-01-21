@@ -1,0 +1,29 @@
+{
+  "name": "skribbltypo-desktop",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "app:dir": "electron-builder --dir",
+    "app:dist": "electron-builder"
+  },
+  "build": {
+    "asar": {
+      "smartUnpack": false
+    },
+    "electronLanguages": ["en-US"],
+    "npmRebuild": true,
+    "nodeGypRebuild": false,
+    "linux": {
+      "target": ["AppImage"]
+    },
+    "appImage": {
+      "description": "Desktop client for skribbl.io (along with skribbltypo)"
+    }
+  },
+  "devDependencies": {
+    "electron": "^40.0.0",
+    "electron-builder": "^26.4.0"
+  }
+}
