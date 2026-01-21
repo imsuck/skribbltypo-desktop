@@ -1,0 +1,31 @@
+#skribbltypo-update-popup {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--COLOR_CHAT_BG_BASE);
+    color: var(--COLOR_CHAT_TEXT_BASE);
+    padding: 16px;
+    border-radius: 4px;
+}
+
+#update-content h3 {
+    font-weight: bold;
+}
+
+#skribbltypo-update-btn,
+#skribbltypo-close-btn {
+    padding: 6px 12px;
+    margin-top: 8px;
+    border-radius: 2px;
+}
+
+#skribbltypo-update-btn {
+    background-color: var(--COLOR_BUTTON_SUBMIT_BG);
+    color: var(--COLOR_BUTTON_SUBMIT_TEXT);
+}
+
+#skribbltypo-close-btn {
+    background-color: var(--COLOR_BUTTON_DANGER_BG);
+    color: var(--COLOR_BUTTON_DANGER_TEXT);
+}

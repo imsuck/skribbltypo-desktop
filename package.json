@@ -1,29 +1,37 @@
 {
   "name": "skribbltypo-desktop",
   "version": "1.0.0",
-  "main": "src/main.js",
+  "type": "module",
+  "main": "dist/main.js",
   "license": "MIT",
   "scripts": {
-    "start": "electron .",
-    "app:dir": "electron-builder --dir",
-    "app:dist": "electron-builder"
+    "start": "tsc && electron .",
+    "build": "tsc",
+    "app:dir": "tsc && electron-builder --dir",
+    "app:dist": "tsc && electron-builder"
   },
   "build": {
     "asar": {
       "smartUnpack": false
     },
-    "electronLanguages": ["en-US"],
+    "electronLanguages": [
+      "en-US"
+    ],
     "npmRebuild": true,
     "nodeGypRebuild": false,
     "linux": {
-      "target": ["AppImage"]
+      "target": [
+        "AppImage"
+      ]
     },
     "appImage": {
       "description": "Desktop client for skribbl.io (along with skribbltypo)"
     }
   },
   "devDependencies": {
+    "@types/node": "^25.0.9",
     "electron": "^40.0.0",
-    "electron-builder": "^26.4.0"
+    "electron-builder": "^26.4.0",
+    "typescript": "^5.9.3"
   }
 }
