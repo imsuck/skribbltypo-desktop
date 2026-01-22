@@ -33,7 +33,7 @@ jobs:
         run: yarn install --frozen-lockfile
       
       - name: Build application
-        run: yarn app:dist
+        run: yarn app:release
         env:
           NODE_ENV: production
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -43,20 +43,20 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-build
-          path: dist/*.AppImage
+          path: release/*.AppImage
       
       - name: Upload Windows artifacts
         if: matrix.platform == 'windows'
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: dist/*.exe
+          path: release/*.exe
       
       - name: Upload release assets (Linux)
         if: matrix.platform == 'linux'
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/*.AppImage
+          files: release/*.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -64,6 +64,6 @@ jobs:
         if: matrix.platform == 'windows'
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/*.exe
+          files: release/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

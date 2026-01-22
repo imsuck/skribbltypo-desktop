@@ -8,12 +8,15 @@
     "start": "vite",
     "build": "vite build",
     "app:dir": "vite build && electron-builder --dir",
-    "app:dist": "vite build && electron-builder"
+    "app:release": "vite build && electron-builder"
   },
   "build": {
     "npmArgs": [
       "--production"
     ],
+    "directories": {
+      "output": "release"
+    },
     "files": [
       "dist/**/*",
       "package.json"
