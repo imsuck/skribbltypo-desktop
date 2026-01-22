@@ -1,10 +1,15 @@
 import { app, BrowserWindow, Menu, MenuItem, ipcMain, dialog } from "electron";
-import { ScriptManager } from "./script-manager.js";
-import { logger } from "./logger.js";
 import * as path from "path";
-import * as fs from "fs";
+
+
+import { logger } from "./logger.js";
+import { ScriptManager } from "./script-manager.js";
+import mainStyles from "./css/style.css?raw";
+
 let mainWindow: BrowserWindow | null = null;
 const scriptManager = new ScriptManager();
+
+
 
 function createWindow() {
     mainWindow = new BrowserWindow({
@@ -12,7 +17,7 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            preload: path.join(app.getAppPath(), 'dist', 'preload.js')
+            preload: path.join(app.getAppPath(), "dist", "preload.js")
         }
     });
 
@@ -22,63 +27,44 @@ function createWindow() {
         mainWindow = null;
     });
 
-    mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.on("did-finish-load", () => {
         if (!mainWindow) return;
-        mainWindow.webContents.insertCSS(fs.readFileSync(path.join(app.getAppPath(), 'src', 'css', 'style.css'), 'utf-8')).catch(err => {
-            logger.error('Failed to inject CSS:', err);
+        mainWindow.webContents.insertCSS(mainStyles).catch(err => {
+            logger.error("Failed to inject CSS:", err);
         });
         scriptManager.injectScript(mainWindow.webContents).catch(err => {
-            logger.error('Failed to inject script:', err);
+            logger.error("Failed to inject script:", err);
         });
         scriptManager.showUpdatePopup(mainWindow.webContents).catch(err => {
-            logger.error('Failed to show update popup:', err);
+            logger.error("Failed to show update popup:", err);
         });
-        // mainWindow.webContents.executeJavaScript(`
-        //     setTimeout(() => {
-        //         console.log("hello world!");
-
-        //         const div = document.createElement('div');
-        //         div.id = 'electron-banner';
-        //         div.innerText = 'Hello from Electron!';
-        //         div.style.position = 'fixed';
-        //         div.style.top = '10px';
-        //         div.style.right = '10px';
-        //         div.style.padding = '10px';
-        //         div.style.background = 'black';
-        //         div.style.color = 'white';
-        //         div.style.zIndex = '9999';
-
-        //         document.body.appendChild(div);
-        //     }, 3e3);
-        // `).catch(err => {
-        //     console.error('Failed to inject HTML:', err);
-        // });
     });
 }
 
 
 ipcMain.on("update-script", async () => {
     try {
-        const response = await fetch('https://api.github.com/repos/toobeeh/skribbltypo/releases/latest', {
-            headers: { 'User-Agent': 'skribbltypo-desktop' }
+        const response = await fetch("https://api.github.com/repos/toobeeh/skribbltypo/releases/latest", {
+            headers: { "User-Agent": "skribbltypo-desktop" }
         });
         const release = await response.json();
-        const asset = release.assets.find((a: any) => a.name === 'skribbltypo.user.js');
+        const asset = release.assets.find((a: any) => a.name === "skribbltypo.user.js");
         if (asset) {
             await scriptManager.downloadScript(asset.browser_download_url, release.tag_name);
             if (mainWindow) {
                 mainWindow.reload();
             }
+            logger.info("Updated script successfully");
         }
     } catch (err) {
-        logger.error('Failed to update script from IPC:', err);
+        logger.error("Failed to update script from IPC:", err);
     }
 });
 
 const mainMenu = new Menu();
 
-if (process.platform === 'darwin') {
-    const appMenu = new MenuItem({ role: 'appMenu' });
+if (process.platform === "darwin") {
+    const appMenu = new MenuItem({ role: "appMenu" });
     mainMenu.append(appMenu);
 }
 
@@ -96,12 +82,12 @@ const submenu = Menu.buildFromTemplate([
         click: () => {
             if (!mainWindow) return;
             scriptManager.checkForUpdates().catch(err => {
-                logger.error('Manual update check failed:', err);
+                logger.error("Manual update check failed:", err);
             });
         },
     }
 ]);
-mainMenu.append(new MenuItem({ label: "FXClient", submenu }));
+mainMenu.append(new MenuItem({ label: "Skribbl.io Desktop", submenu }));
 
 Menu.setApplicationMenu(mainMenu);
 

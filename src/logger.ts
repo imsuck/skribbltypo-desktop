@@ -35,10 +35,10 @@ const Colors = {
 
 class Logger {
     private formatMessage(level: string, color: string, ...args: any[]): string {
-        const timestamp = new Date().toLocaleTimeString('en-GB', { hour12: false });
+        const timestamp = new Date().toLocaleTimeString("en-GB", { hour12: false });
         const levelTag = `${color}[${level}]${Colors.Reset}`;
         const prefix = `${Colors.Dim}${timestamp}${Colors.Reset} ${levelTag}`;
-        return `${prefix} ${args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : arg).join(' ')}`;
+        return `${prefix} ${args.map(arg => typeof arg === "object" ? JSON.stringify(arg, null, 2) : arg).join(" ")}`;
     }
 
     public debug(...args: any[]) {

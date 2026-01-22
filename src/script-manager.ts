@@ -1,18 +1,19 @@
 import { app, WebContents } from "electron";
 import * as path from "path";
 import * as fs from "fs/promises";
-import { logger } from "./logger.js";
 import { setTimeout } from "timers/promises";
 
+import { logger } from "./logger.js";
+
 export class ScriptManager {
-    private readonly scriptPath = path.join(app.getPath('userData'), 'skribbltypo.user.js');
-    private readonly versionPath = path.join(app.getPath('userData'), 'version.json');
-    private readonly registryUrl = 'https://api.github.com/repos/toobeeh/skribbltypo/releases/latest';
+    private readonly scriptPath = path.join(app.getPath("userData"), "skribbltypo.user.js");
+    private readonly versionPath = path.join(app.getPath("userData"), "version.json");
+    private readonly registryUrl = "https://api.github.com/repos/toobeeh/skribbltypo/releases/latest";
     private pendingUpdate: { latest: string, current: string } | null = null;
 
     private async getLocalVersion(): Promise<string | null> {
         try {
-            const data = await fs.readFile(this.versionPath, 'utf-8');
+            const data = await fs.readFile(this.versionPath, "utf-8");
             return JSON.parse(data).version;
         } catch {
             return null;
@@ -28,7 +29,7 @@ export class ScriptManager {
     public async checkForUpdates(): Promise<{ latest: string, current: string } | null> {
         try {
             const response = await fetch(this.registryUrl, {
-                headers: { 'User-Agent': 'skribbltypo-desktop' }
+                headers: { "User-Agent": "skribbltypo-desktop" }
             });
             if (!response.ok) return null;
 
@@ -36,7 +37,7 @@ export class ScriptManager {
             const latestVersion = release.tag_name;
             const currentVersion = await this.getLocalVersion();
 
-            const asset = release.assets.find((a: any) => a.name === 'skribbltypo.user.js');
+            const asset = release.assets.find((a: any) => a.name === "skribbltypo.user.js");
             if (!asset) return null;
 
             const downloadUrl = asset.browser_download_url;
@@ -46,12 +47,12 @@ export class ScriptManager {
                 await this.downloadScript(downloadUrl, latestVersion);
                 return null;
             } else if (currentVersion !== latestVersion) {
-                logger.info("New skribbltypo version available:", latestVersion);
+                logger.debug("New skribbltypo version available:", latestVersion);
                 this.pendingUpdate = { latest: latestVersion, current: currentVersion };
                 return this.pendingUpdate;
             }
         } catch (err) {
-            logger.error('Failed to check for updates:', err);
+            logger.error("Failed to check for updates:", err);
         }
         return null;
     }
@@ -60,15 +61,14 @@ export class ScriptManager {
         if (!this.pendingUpdate) return;
         const { latest, current } = this.pendingUpdate;
 
-        logger.info("Injecting update popup");
         const skeleton = `
             const updatePopup = () => {
-                if (document.getElementById('skribbltypo-update-popup')) return;
-                const container = document.createElement('div');
-                container.id = 'skribbltypo-update-popup';
+                if (document.getElementById("skribbltypo-update-popup")) return;
+                const container = document.createElement("div");
+                container.id = "skribbltypo-update-popup";
                 container.innerHTML = \`
                     <div class="update-content">
-                        <h3>Update Available</h3>
+                        <h2>🔔 Update Available</h2>
                         <p>A new version of skribbltypo (${latest}) is available.</p>
                         <p>Current: ${current}</p>
                         <button id="skribbltypo-update-btn">Update</button>
@@ -77,18 +77,17 @@ export class ScriptManager {
                 \`;
                 document.body.appendChild(container);
 
-                document.getElementById('skribbltypo-update-btn').onclick = () => {
+                document.getElementById("skribbltypo-update-btn").onclick = () => {
                     window.electronAPI.updateScript();
                     container.remove();
                 };
-                document.getElementById('skribbltypo-close-btn').onclick = () => {
+                document.getElementById("skribbltypo-close-btn").onclick = () => {
                     container.remove();
                 };
             };
             setTimeout(updatePopup, 3e3);
         `;
         await webContents.executeJavaScript(skeleton);
-        logger.info("Update popup injected successfully");
     }
 
     public async downloadScript(url: string, version: string) {
@@ -99,11 +98,11 @@ export class ScriptManager {
 
     public async injectScript(webContents: WebContents) {
         try {
-            const scriptContent = await fs.readFile(this.scriptPath, 'utf-8');
+            const scriptContent = await fs.readFile(this.scriptPath, "utf-8");
             await webContents.executeJavaScript(scriptContent);
-            logger.info('Script injected successfully');
+            logger.debug("Script injected successfully");
         } catch (err) {
-            logger.error('Failed to inject script:', err);
+            logger.error("Failed to inject script:", err);
         }
     }
 }

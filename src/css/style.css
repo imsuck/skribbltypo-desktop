@@ -1,16 +1,12 @@
 #skribbltypo-update-popup {
     position: fixed;
-    top: 20%;
+    top: 10%;
     left: 50%;
     transform: translateX(-50%);
-    background-color: var(--COLOR_CHAT_BG_BASE);
+    background-color: var(--COLOR_PANEL_HI);
     color: var(--COLOR_CHAT_TEXT_BASE);
     padding: 16px;
     border-radius: 4px;
-}
-
-#update-content h3 {
-    font-weight: bold;
 }
 
 #skribbltypo-update-btn,

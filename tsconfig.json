@@ -10,13 +10,15 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": false,
-    "declaration": false
+    "declaration": false,
+    "removeComments": true,
+    "importsNotUsedAsValues": "remove"
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
     "node_modules",
-    "src/skribbltypo.user.js"
+    "src/preload.ts"
   ]
 }
