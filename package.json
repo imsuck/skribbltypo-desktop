@@ -26,6 +26,7 @@
     ],
     "npmRebuild": true,
     "nodeGypRebuild": false,
+
     "linux": {
       "target": [
         "AppImage"
@@ -33,7 +34,23 @@
     },
     "appImage": {
       "description": "Desktop client for skribbl.io (along with skribbltypo)"
-    }
+    },
+
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
   },
   "devDependencies": {
     "@types/node": "^25.0.9",
