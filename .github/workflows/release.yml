@@ -33,9 +33,10 @@ jobs:
         run: yarn install --frozen-lockfile
       
       - name: Build application
-        run: npm run app:dist
+        run: yarn app:dist
         env:
           NODE_ENV: production
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Upload Linux artifacts
         if: matrix.platform == 'linux'
