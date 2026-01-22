@@ -6,9 +6,9 @@
   "license": "MIT",
   "scripts": {
     "start": "vite",
-    "build": "NODE_ENV=production vite build",
-    "app:dir": "NODE_ENV=production vite build && NODE_ENV=production electron-builder --dir",
-    "app:dist": "NODE_ENV=production vite build && NODE_ENV=production electron-builder"
+    "build": "vite build",
+    "app:dir": "vite build && electron-builder --dir",
+    "app:dist": "vite build && electron-builder"
   },
   "build": {
     "npmArgs": [
@@ -26,7 +26,6 @@
     ],
     "npmRebuild": true,
     "nodeGypRebuild": false,
-
     "linux": {
       "target": [
         "AppImage"
@@ -35,12 +34,13 @@
     "appImage": {
       "description": "Desktop client for skribbl.io (along with skribbltypo)"
     },
-
     "win": {
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
