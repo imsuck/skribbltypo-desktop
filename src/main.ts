@@ -10,7 +10,6 @@ let mainWindow: BrowserWindow | null = null;
 const scriptManager = new ScriptManager();
 
 
-
 function createWindow() {
     mainWindow = new BrowserWindow({
         autoHideMenuBar: true,
@@ -69,6 +68,14 @@ if (process.platform === "darwin") {
 }
 
 const submenu = Menu.buildFromTemplate([
+    {
+        label: "Reload",
+        click: () => {
+            if (!mainWindow) return;
+            mainWindow.loadURL("https://skribbl.io/");
+        },
+        accelerator: "CmdOrCtrl+R",
+    },
     {
         label: "Open DevTools",
         click: () => {
