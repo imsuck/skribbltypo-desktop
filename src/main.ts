@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, MenuItem, ipcMain, dialog } from "electron";
+import { app, BrowserWindow, Menu, MenuItem, ipcMain, dialog, Notification } from "electron";
 import * as path from "path";
 
 
@@ -58,6 +58,25 @@ ipcMain.on("update-script", async () => {
     } catch (err) {
         logger.error("Failed to update script from IPC:", err);
     }
+});
+
+ipcMain.on("show-notification", (event, { title, body }) => {
+    if (mainWindow && mainWindow.isFocused()) return;
+
+    const notification = new Notification({
+        title,
+        body,
+        silent: false,
+    });
+
+    notification.on("click", () => {
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
+        }
+    });
+
+    notification.show();
 });
 
 const mainMenu = new Menu();

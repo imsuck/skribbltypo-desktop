@@ -4,6 +4,7 @@ import * as fs from "fs/promises";
 import { setTimeout } from "timers/promises";
 
 import { logger } from "./logger.js";
+import gameObserver from "./game-observer.js?raw";
 
 export class ScriptManager {
     private readonly scriptPath = path.join(app.getPath("userData"), "skribbltypo.user.js");
@@ -100,7 +101,8 @@ export class ScriptManager {
         try {
             const scriptContent = await fs.readFile(this.scriptPath, "utf-8");
             await webContents.executeJavaScript(scriptContent);
-            logger.debug("Script injected successfully");
+            await webContents.executeJavaScript(gameObserver);
+            logger.debug("Script and observer injected successfully");
         } catch (err) {
             logger.error("Failed to inject script:", err);
         }
