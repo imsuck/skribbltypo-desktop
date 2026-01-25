@@ -4,10 +4,12 @@ import * as path from "path";
 
 import { logger } from "./logger.js";
 import { ScriptManager } from "./script-manager.js";
+import { DiscordRPCManager } from "./discord-rpc.js";
 import mainStyles from "./css/style.css?raw";
 
 let mainWindow: BrowserWindow | null = null;
 const scriptManager = new ScriptManager();
+const discordRPC = new DiscordRPCManager();
 
 
 function createWindow() {
@@ -72,11 +74,18 @@ ipcMain.on("show-notification", (event, { title, body }) => {
     notification.on("click", () => {
         if (mainWindow) {
             if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.show();
             mainWindow.focus();
         }
     });
 
     notification.show();
+});
+
+ipcMain.on("update-presence", (event, data) => {
+    discordRPC.updateActivity(data).catch(err => {
+        logger.error("Failed to update Discord presence:", err);
+    });
 });
 
 const mainMenu = new Menu();
@@ -119,6 +128,7 @@ Menu.setApplicationMenu(mainMenu);
 
 app.whenReady().then(async () => {
     await scriptManager.checkForUpdates();
+    await discordRPC.login();
     createWindow();
 
     app.on("activate", () => {

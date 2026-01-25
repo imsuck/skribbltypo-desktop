@@ -62,5 +62,8 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vite-plugin-electron": "^0.29.0"
+  },
+  "dependencies": {
+    "@visoftware/discord-rpc": "^1.4.1"
   }
 }

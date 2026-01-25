@@ -1,3 +1,5 @@
+import { PresenceData } from "./discord-rpc.js";
+
 (function () {
     console.debug("[skribbltypo-desktop] Game Observer starting...");
 
@@ -33,6 +35,45 @@
         });
 
         observer.observe(overlay, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+
+        console.debug("[skribbltypo-desktop] Game Observer attached to .overlay-content");
+    };
+
+    const observePlayer = () => {
+        const playerList = document.querySelector(".players-list");
+        if (!playerList) return;
+
+        let playerName: string = "";
+        let round: string = "";
+        let language: string = "";
+        let rank: number = 0;
+        let points: number = 0;
+        let maxPlayers: number = 0;
+
+        // Note for agent:
+        // This should update reactively as its inner variables are updated
+        // Sort of like references in C++
+        let presenceData: PresenceData = {
+            state: `${language} lobby`,
+            details: `#${rank}, ${points} points`,
+            largeImageText: playerName,
+            partySize: playerList.children.length,
+            partyMax: maxPlayers,
+        };
+
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type === "childList" || mutation.type === "characterData") {
+
+                }
+            }
+        });
+
+        observer.observe(playerList, {
             childList: true,
             subtree: true,
             characterData: true
