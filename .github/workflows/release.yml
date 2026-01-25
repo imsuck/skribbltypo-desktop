@@ -1,69 +1,69 @@
 name: Build and Release
 
 on:
-  release:
-    types: [created]
+    release:
+        types: [created]
 
 permissions:
-  contents: write
+    contents: write
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            platform: linux
-          - os: windows-latest
-            platform: windows
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'yarn'
-      
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      
-      - name: Build application
-        run: yarn app:release
-        env:
-          NODE_ENV: production
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Upload Linux artifacts
-        if: matrix.platform == 'linux'
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-build
-          path: release/*.AppImage
-      
-      - name: Upload Windows artifacts
-        if: matrix.platform == 'windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-build
-          path: release/*.exe
-      
-      - name: Upload release assets (Linux)
-        if: matrix.platform == 'linux'
-        uses: softprops/action-gh-release@v1
-        with:
-          files: release/*.AppImage
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Upload release assets (Windows)
-        if: matrix.platform == 'windows'
-        uses: softprops/action-gh-release@v1
-        with:
-          files: release/*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    build:
+        runs-on: ${{ matrix.os }}
+
+        strategy:
+            matrix:
+                include:
+                    - os: ubuntu-latest
+                      platform: linux
+                    - os: windows-latest
+                      platform: windows
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "24"
+                  cache: "yarn"
+
+            - name: Install dependencies
+              run: yarn install --frozen-lockfile
+
+            - name: Build application
+              run: yarn app:release
+              env:
+                  NODE_ENV: production
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Upload Linux artifacts
+              if: matrix.platform == 'linux'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: linux-build
+                  path: release/*.AppImage
+
+            - name: Upload Windows artifacts
+              if: matrix.platform == 'windows'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: windows-build
+                  path: release/*.exe
+
+            - name: Upload release assets (Linux)
+              if: matrix.platform == 'linux'
+              uses: softprops/action-gh-release@v1
+              with:
+                  files: release/*.AppImage
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Upload release assets (Windows)
+              if: matrix.platform == 'windows'
+              uses: softprops/action-gh-release@v1
+              with:
+                  files: release/*.exe
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

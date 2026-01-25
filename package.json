@@ -1,69 +1,69 @@
 {
-  "name": "skribbltypo-desktop",
-  "version": "1.0.1",
-  "type": "module",
-  "main": "dist/main.js",
-  "license": "MIT",
-  "scripts": {
-    "start": "vite",
-    "build": "vite build",
-    "app:dir": "vite build && electron-builder --dir",
-    "app:release": "vite build && electron-builder"
-  },
-  "build": {
-    "npmArgs": [
-      "--production"
-    ],
-    "directories": {
-      "output": "release"
+    "name": "skribbltypo-desktop",
+    "version": "1.0.1",
+    "type": "module",
+    "main": "dist/main.js",
+    "license": "MIT",
+    "scripts": {
+        "start": "vite",
+        "build": "vite build",
+        "app:dir": "vite build && electron-builder --dir",
+        "app:release": "vite build && electron-builder"
     },
-    "files": [
-      "dist/**/*",
-      "package.json"
-    ],
-    "asar": {
-      "smartUnpack": false
-    },
-    "electronLanguages": [
-      "en-US"
-    ],
-    "npmRebuild": true,
-    "nodeGypRebuild": false,
-    "linux": {
-      "target": [
-        "AppImage"
-      ]
-    },
-    "appImage": {
-      "description": "Desktop client for skribbl.io (along with skribbltypo)"
-    },
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
+    "build": {
+        "npmArgs": [
+            "--production"
+        ],
+        "directories": {
+            "output": "release"
+        },
+        "files": [
+            "dist/**/*",
+            "package.json"
+        ],
+        "asar": {
+            "smartUnpack": false
+        },
+        "electronLanguages": [
+            "en-US"
+        ],
+        "npmRebuild": true,
+        "nodeGypRebuild": false,
+        "linux": {
+            "target": [
+                "AppImage"
+            ]
+        },
+        "appImage": {
+            "description": "Desktop client for skribbl.io (along with skribbltypo)"
+        },
+        "win": {
+            "target": [
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ]
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "perMachine": false,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true
         }
-      ]
     },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "perMachine": false,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+    "devDependencies": {
+        "@types/node": "^25.0.9",
+        "electron": "^40.0.0",
+        "electron-builder": "^26.4.0",
+        "typescript": "^5.9.3",
+        "vite": "^7.3.1",
+        "vite-plugin-electron": "^0.29.0"
+    },
+    "dependencies": {
+        "@visoftware/discord-rpc": "^1.4.1"
     }
-  },
-  "devDependencies": {
-    "@types/node": "^25.0.9",
-    "electron": "^40.0.0",
-    "electron-builder": "^26.4.0",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vite-plugin-electron": "^0.29.0"
-  },
-  "dependencies": {
-    "@visoftware/discord-rpc": "^1.4.1"
-  }
 }
