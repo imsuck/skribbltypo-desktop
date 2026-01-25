@@ -7,7 +7,7 @@ Grab the latest release [here](https://github.com/imsuck/skribbltypo-desktop/rel
 
 ## Credits
 
-- [twitter/twemoji](https://github.com/twitter/twemoji): for country flags
+- [kapowaz/circle-flags](https://github.com/kapowaz/circle-flags): for country flags
 
 ## TODOs
 

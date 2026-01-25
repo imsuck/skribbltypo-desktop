@@ -8,7 +8,7 @@ declare global {
 }
 
 const LANGUAGE_CODES: Record<string, string> = {
-    English: "us",
+    English: "gb",
     German: "de",
     Bulgarian: "bg",
     Czech: "cz",
@@ -112,7 +112,6 @@ const LANGUAGE_CODES: Record<string, string> = {
                 if (!gameDiv) return;
                 let presenceData: PresenceData = {};
                 if (gameDiv.style.display === "none") {
-                    console.debug("In menus");
                     startTime = null;
                     presenceData = {
                         details: "In menus",
@@ -121,7 +120,6 @@ const LANGUAGE_CODES: Record<string, string> = {
                         endTimestamp: 0,
                     };
                 } else {
-                    console.debug("In game");
                     if (!startTime) {
                         startTime = Date.now();
                     }
@@ -130,7 +128,7 @@ const LANGUAGE_CODES: Record<string, string> = {
                         details: `${round}`,
                         largeImageKey: "in_game",
                         largeImageText: playerName || "skribbl.io",
-                        smallImageKey: "flag_" + LANGUAGE_CODES[language],
+                        smallImageKey: `flag_${LANGUAGE_CODES[language]}`,
                         smallImageText: language,
                         startTimestamp: startTime,
                         partySize:
