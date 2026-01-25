@@ -1,16 +1,26 @@
 import { app, WebContents } from "electron";
 import * as path from "path";
 import * as fs from "fs/promises";
-import { setTimeout } from "timers/promises";
 
 import { logger } from "./logger.js";
-import gameObserver from "./game-observer.js?raw";
 
 export class ScriptManager {
-    private readonly scriptPath = path.join(app.getPath("userData"), "skribbltypo.user.js");
-    private readonly versionPath = path.join(app.getPath("userData"), "version.json");
-    private readonly registryUrl = "https://api.github.com/repos/toobeeh/skribbltypo/releases/latest";
-    private pendingUpdate: { latest: string, current: string } | null = null;
+    private readonly scriptPath = path.join(
+        app.getPath("userData"),
+        "skribbltypo.user.js",
+    );
+    private readonly versionPath = path.join(
+        app.getPath("userData"),
+        "version.json",
+    );
+    private readonly registryUrl =
+        "https://api.github.com/repos/toobeeh/skribbltypo/releases/latest";
+    private readonly observerPath = path.join(
+        path.dirname(import.meta.dirname),
+        "dist",
+        "game-observer.js",
+    );
+    private pendingUpdate: { latest: string; current: string } | null = null;
 
     private async getLocalVersion(): Promise<string | null> {
         try {
@@ -27,10 +37,13 @@ export class ScriptManager {
         this.pendingUpdate = null;
     }
 
-    public async checkForUpdates(): Promise<{ latest: string, current: string } | null> {
+    public async checkForUpdates(): Promise<{
+        latest: string;
+        current: string;
+    } | null> {
         try {
             const response = await fetch(this.registryUrl, {
-                headers: { "User-Agent": "skribbltypo-desktop" }
+                headers: { "User-Agent": "skribbltypo-desktop" },
             });
             if (!response.ok) return null;
 
@@ -38,7 +51,9 @@ export class ScriptManager {
             const latestVersion = release.tag_name;
             const currentVersion = await this.getLocalVersion();
 
-            const asset = release.assets.find((a: any) => a.name === "skribbltypo.user.js");
+            const asset = release.assets.find(
+                (a: any) => a.name === "skribbltypo.user.js",
+            );
             if (!asset) return null;
 
             const downloadUrl = asset.browser_download_url;
@@ -48,8 +63,14 @@ export class ScriptManager {
                 await this.downloadScript(downloadUrl, latestVersion);
                 return null;
             } else if (currentVersion !== latestVersion) {
-                logger.debug("New skribbltypo version available:", latestVersion);
-                this.pendingUpdate = { latest: latestVersion, current: currentVersion };
+                logger.debug(
+                    "New skribbltypo version available:",
+                    latestVersion,
+                );
+                this.pendingUpdate = {
+                    latest: latestVersion,
+                    current: currentVersion,
+                };
                 return this.pendingUpdate;
             }
         } catch (err) {
@@ -101,8 +122,11 @@ export class ScriptManager {
         try {
             const scriptContent = await fs.readFile(this.scriptPath, "utf-8");
             await webContents.executeJavaScript(scriptContent);
+            logger.debug("Script injected successfully");
+
+            const gameObserver = await fs.readFile(this.observerPath, "utf-8");
             await webContents.executeJavaScript(gameObserver);
-            logger.debug("Script and observer injected successfully");
+            logger.debug("Observer injected successfully");
         } catch (err) {
             logger.error("Failed to inject script:", err);
         }

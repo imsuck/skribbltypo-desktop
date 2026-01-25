@@ -2,7 +2,7 @@ export enum LogLevel {
     DEBUG = 0,
     INFO = 1,
     WARN = 2,
-    ERROR = 3
+    ERROR = 3,
 }
 
 const Colors = {
@@ -30,15 +30,21 @@ const Colors = {
     BgBlue: "\x1b[44m",
     BgMagenta: "\x1b[45m",
     BgCyan: "\x1b[46m",
-    BgWhite: "\x1b[47m"
+    BgWhite: "\x1b[47m",
 };
 
 class Logger {
-    private formatMessage(level: string, color: string, ...args: any[]): string {
-        const timestamp = new Date().toLocaleTimeString("en-GB", { hour12: false });
+    private formatMessage(
+        level: string,
+        color: string,
+        ...args: any[]
+    ): string {
+        const timestamp = new Date().toLocaleTimeString("en-GB", {
+            hour12: false,
+        });
         const levelTag = `${color}[${level}]${Colors.Reset}`;
         const prefix = `${Colors.Dim}${timestamp}${Colors.Reset} ${levelTag}`;
-        return `${prefix} ${args.map(arg => typeof arg === "object" ? JSON.stringify(arg, null, 2) : arg).join(" ")}`;
+        return `${prefix} ${args.map((arg) => (typeof arg === "object" ? JSON.stringify(arg, null, 2) : arg)).join(" ")}`;
     }
 
     public debug(...args: any[]) {
