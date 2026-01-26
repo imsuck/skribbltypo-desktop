@@ -31,7 +31,13 @@ export default defineConfig({
                             output: {
                                 entryFileNames: "preload.js",
                                 format: "cjs",
+                                exports: "auto",
                             },
+                        },
+                        lib: {
+                          entry: "src/preload.ts",  
+                          formats: ["cjs"],
+                          fileName: () => "preload.js"
                         },
                     },
                 },

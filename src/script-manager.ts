@@ -83,7 +83,7 @@ export class ScriptManager {
         if (!this.pendingUpdate) return;
         const { latest, current } = this.pendingUpdate;
 
-        const skeleton = `
+        const script = `
             const updatePopup = () => {
                 if (document.getElementById("skribbltypo-update-popup")) return;
                 const container = document.createElement("div");
@@ -109,7 +109,7 @@ export class ScriptManager {
             };
             setTimeout(updatePopup, 3e3);
         `;
-        await webContents.executeJavaScript(skeleton);
+        await webContents.executeJavaScript(script);
     }
 
     public async downloadScript(url: string, version: string) {
@@ -121,7 +121,7 @@ export class ScriptManager {
     public async injectScript(webContents: WebContents) {
         try {
             const scriptContent = await fs.readFile(this.scriptPath, "utf-8");
-            await webContents.executeJavaScript(scriptContent);
+            // await webContents.executeJavaScript(scriptContent);
             logger.debug("Script injected successfully");
 
             const gameObserver = await fs.readFile(this.observerPath, "utf-8");

@@ -1,19 +1,5 @@
-import { Client } from "@visoftware/discord-rpc";
+import { Client, type SetActivity } from "@visoftware/discord-rpc";
 import { logger } from "./logger.js";
-
-export interface PresenceData {
-    details?: string;
-    state?: string;
-    startTimestamp?: number;
-    endTimestamp?: number;
-    largeImageKey?: string;
-    largeImageText?: string;
-    smallImageKey?: string;
-    smallImageText?: string;
-    partyId?: string;
-    partySize?: number;
-    partyMax?: number;
-}
 
 export class DiscordRPCManager {
     private client: Client;
@@ -44,7 +30,7 @@ export class DiscordRPCManager {
         }
     }
 
-    public async updateActivity(data: PresenceData) {
+    public async updateActivity(data: SetActivity) {
         if (!this.isReady || !this.client.user) return;
 
         try {

@@ -1,4 +1,4 @@
-import { PresenceData } from "./discord-rpc.js";
+import { type SetActivity } from "@visoftware/discord-rpc";
 import { type IElectronAPI } from "./preload.js";
 
 declare global {
@@ -110,7 +110,7 @@ const LANGUAGE_CODES: Record<string, string> = {
             updateTimeout = setTimeout(() => {
                 const gameDiv = document.getElementById("game");
                 if (!gameDiv) return;
-                let presenceData: PresenceData = {};
+                let presenceData: SetActivity = {};
                 if (gameDiv.style.display === "none") {
                     startTime = null;
                     presenceData = {
