@@ -12,6 +12,7 @@ import * as path from "path";
 import { logger } from "./logger.js";
 import { ScriptManager } from "./script-manager.js";
 import { DiscordRPCManager } from "./discord-rpc.js";
+// @ts-ignore LSP couldn't find the file :(
 import mainStyles from "./css/style.css?raw";
 
 let mainWindow: BrowserWindow | null = null;
@@ -113,9 +114,17 @@ const submenu = Menu.buildFromTemplate([
         label: "Reload",
         click: () => {
             if (!mainWindow) return;
-            mainWindow.loadURL("https://skribbl.io/");
+            mainWindow.reload();
         },
         accelerator: "CmdOrCtrl+R",
+    },
+    {
+        label: "Force Reload",
+        click: () => {
+            if (!mainWindow) return;
+            mainWindow.webContents.reloadIgnoringCache();
+        },
+        accelerator: "CmdOrCtrl+Shift+R",
     },
     {
         label: "Open DevTools",

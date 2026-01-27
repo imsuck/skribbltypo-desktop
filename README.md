@@ -8,6 +8,7 @@ Grab the latest release [here](https://github.com/imsuck/skribbltypo-desktop/rel
 ## Credits
 
 - [kapowaz/circle-flags](https://github.com/kapowaz/circle-flags): for country flags
+- _Anonymous_ for the DiscordRPC assets
 
 ## TODOs
 

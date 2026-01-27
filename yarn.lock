@@ -1033,7 +1033,7 @@ dir-compare@^4.2.0:
     minimatch "^3.0.5"
     p-limit "^3.1.0 "
 
-discord-api-types@^0.38.16, discord-api-types@^0.38.33, discord-api-types@^0.38.34:
+discord-api-types@^0.38.16, discord-api-types@^0.38.33, discord-api-types@^0.38.34, discord-api-types@^0.38.37:
   version "0.38.37"
   resolved "https://registry.npmjs.org/discord-api-types/-/discord-api-types-0.38.37.tgz#0e9fa948e8483b0ff3b63a1902ea9a9c9b748921"
   integrity sha512-Cv47jzY1jkGkh5sv0bfHYqGgKOWO1peOrGMkDFM4UmaGMOTgOW8QSexhvixa9sVOiz8MnVOBryWYyw/CEVhj7w==

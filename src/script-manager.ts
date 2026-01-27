@@ -121,7 +121,7 @@ export class ScriptManager {
     public async injectScript(webContents: WebContents) {
         try {
             const scriptContent = await fs.readFile(this.scriptPath, "utf-8");
-            // await webContents.executeJavaScript(scriptContent);
+            await webContents.executeJavaScript(scriptContent);
             logger.debug("Script injected successfully");
 
             const gameObserver = await fs.readFile(this.observerPath, "utf-8");

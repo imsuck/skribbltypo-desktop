@@ -1,23 +1,43 @@
 import { contextBridge, ipcRenderer, webFrame } from "electron";
 import type { SetActivity } from "@visoftware/discord-rpc";
+import { parseSocketIO } from "./utils/socket-io.js";
 
 export interface IElectronAPI {
     updateScript: () => void;
     showNotification: (title: string, body: string) => void;
     updatePresence: (data: SetActivity) => void;
-    readonly lobbyData: unknown | null;
+    lobbyData: () => any | null;
 }
 
 // TODO: type this properly
-let internalLobbyData: unknown | null = null;
+let internalLobbyData: any | null = null;
 
 window.addEventListener("message", (event: MessageEvent<any>) => {
     if (event.source === window && event.data?.type === "INTERCEPTED_DATA") {
-        const payload = event.data.data;
+        let payload: any = event.data.data;
 
+        const parsed = parseSocketIO(payload);
+        // We want to intercept only messages
+        if (!parsed || parsed.engineType !== 4 || parsed.socketType !== 2) {
+            return;
+        }
+        if (!parsed.data || parsed.data.event !== "data") {
+            return;
+        }
+        payload = parsed.data.args[0].data;
+        if (
+            !payload ||
+            !payload.hasOwnProperty("owner") ||
+            !payload.hasOwnProperty("me") ||
+            !payload.hasOwnProperty("users")
+        ) {
+            return;
+        }
+
+        // Maybe I should clean this up some day
         internalLobbyData = payload;
 
-        console.debug(`[skribbltypo-desktop] Intercepted data: ${event.data}`);
+        console.debug(`[skribbltypo-desktop] Parsed data:`, internalLobbyData);
     }
 });
 
@@ -26,9 +46,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     showNotification: (title, body) =>
         ipcRenderer.send("show-notification", { title, body }),
     updatePresence: (data) => ipcRenderer.send("update-presence", data),
-    get lobbyData() {
-        return internalLobbyData;
-    },
+    lobbyData: () => internalLobbyData,
 } as IElectronAPI);
 
 const script: string = `
@@ -39,11 +57,6 @@ const script: string = `
         const ws = Reflect.construct(NativeWS, args, PatchedWebSocket);
 
         ws.addEventListener("message", (event) => {
-            console.debug(
-                "[skribbltypo-desktop] Intercepted message",
-                event.data
-            );
-
             window.postMessage({ type: "INTERCEPTED_DATA", data: event.data }, "*");
         });
 

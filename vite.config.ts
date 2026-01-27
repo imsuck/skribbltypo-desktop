@@ -1,6 +1,5 @@
 import { defineConfig } from "vite";
 import electron from "vite-plugin-electron";
-import { join } from "path";
 
 export default defineConfig({
     plugins: [
@@ -35,9 +34,9 @@ export default defineConfig({
                             },
                         },
                         lib: {
-                          entry: "src/preload.ts",  
-                          formats: ["cjs"],
-                          fileName: () => "preload.js"
+                            entry: "src/preload.ts",
+                            formats: ["cjs"],
+                            fileName: () => "preload.js",
                         },
                     },
                 },

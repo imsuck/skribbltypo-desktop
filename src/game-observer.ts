@@ -1,4 +1,6 @@
 import { type SetActivity } from "@visoftware/discord-rpc";
+import { type GatewayActivityButton } from "discord-api-types/v10";
+
 import { type IElectronAPI } from "./preload.js";
 
 declare global {
@@ -123,6 +125,20 @@ const LANGUAGE_CODES: Record<string, string> = {
                     if (!startTime) {
                         startTime = Date.now();
                     }
+
+                    const lobbyId: string | null =
+                        window.electronAPI.lobbyData()?.id;
+                    const playerCount: number =
+                        document.querySelector(".players-list")?.children
+                            .length || 0;
+                    const buttons: GatewayActivityButton[] = [];
+                    console.debug(`[skribbltypo-desktop] lobbyId: ${lobbyId}`);
+                    if (lobbyId && playerCount < maxPlayers) {
+                        buttons.push({
+                            label: "Join Lobby",
+                            url: `https://skribbl.io/?${lobbyId}`,
+                        });
+                    }
                     presenceData = {
                         state: `#${rank}, ${points} points`,
                         details: `${round}`,
@@ -131,15 +147,14 @@ const LANGUAGE_CODES: Record<string, string> = {
                         smallImageKey: `flag_${LANGUAGE_CODES[language]}`,
                         smallImageText: language,
                         startTimestamp: startTime,
-                        partySize:
-                            document.querySelector(".players-list")?.children
-                                .length || 0,
+                        partySize: playerCount,
                         partyMax: maxPlayers || 0,
+                        buttons,
                     };
                 }
 
                 window.electronAPI.updatePresence(presenceData);
-            }, 500);
+            }, 1000);
         };
 
         const updateLobbySettings = () => {

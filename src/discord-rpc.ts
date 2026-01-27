@@ -4,7 +4,7 @@ import { logger } from "./logger.js";
 export class DiscordRPCManager {
     private client: Client;
     private readonly clientId: string = "1464612778244571177";
-    private isReady: boolean = false;
+    private ready: boolean = false;
 
     constructor() {
         this.client = new Client({
@@ -12,26 +12,29 @@ export class DiscordRPCManager {
         });
 
         this.client.on("ready", () => {
-            this.isReady = true;
+            this.ready = true;
             logger.info("Discord RPC started");
         });
 
         this.client.on("disconnected", () => {
-            this.isReady = false;
+            this.ready = false;
             logger.warn("Discord RPC disconnected");
         });
     }
 
-    public async login() {
+    public async login(): Promise<boolean> {
+        if (this.ready) return true;
         try {
             await this.client.login();
+            return true;
         } catch (err) {
             logger.error("Failed to login to Discord RPC:", err);
+            return false;
         }
     }
 
     public async updateActivity(data: SetActivity) {
-        if (!this.isReady || !this.client.user) return;
+        if (!this.login() || !this.client.user) return;
 
         try {
             await this.client.user.setActivity(data);
@@ -41,7 +44,7 @@ export class DiscordRPCManager {
     }
 
     public async clearActivity() {
-        if (!this.isReady || !this.client.user) return;
+        if (!this.login() || !this.client.user) return;
 
         try {
             await this.client.user.clearActivity();
