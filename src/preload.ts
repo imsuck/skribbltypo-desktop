@@ -125,3 +125,19 @@ webFrame.executeJavaScript(script);
 ipcRenderer.invoke("get-script-bundle").then((bundle: string) => {
     webFrame.executeJavaScript(bundle);
 });
+
+window.addEventListener(
+    "wheel",
+    (e) => {
+        if (e.ctrlKey) {
+            e.preventDefault();
+            const currentZoom = webFrame.getZoomLevel();
+            if (e.deltaY < 0) {
+                webFrame.setZoomLevel(currentZoom + 0.5);
+            } else {
+                webFrame.setZoomLevel(currentZoom - 0.5);
+            }
+        }
+    },
+    { passive: false },
+);

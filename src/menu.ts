@@ -114,6 +114,11 @@ export function setupMenu(
             },
             accelerator: "CmdOrCtrl+Shift+I",
         },
+        { type: "separator" },
+        { role: "zoomIn", label: "Zoom In", accelerator: "CmdOrCtrl+=" },
+        { role: "zoomOut", label: "Zoom Out", accelerator: "CmdOrCtrl+-" },
+        { role: "resetZoom", label: "Reset Zoom", accelerator: "CmdOrCtrl+0" },
+        { type: "separator" },
         {
             label: "Check for Updates",
             click: () => {

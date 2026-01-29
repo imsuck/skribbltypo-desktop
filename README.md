@@ -9,7 +9,7 @@ Grab the latest release [here](https://github.com/imsuck/skribbltypo-desktop/rel
 
 - [toobeeh/skribbltypo](https://github.com/toobeeh/skribbltypo/) supported out of the box
 - DiscordRPC for in-game status
-- Join lobbies with `F4`, link in clipboard will be read (with a pop-up fallback).
+- Join lobbies with `F4`, link/lobby id will be fetch from system clipboard (or manually input the id through a popup).
 
 ## Credits
 
