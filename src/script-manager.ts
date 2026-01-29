@@ -107,7 +107,7 @@ export class ScriptManager {
                     container.remove();
                 };
             };
-            setTimeout(updatePopup, 3e3);
+            window.electronAPI.onGameLoaded(updatePopup);
         `;
         await webContents.executeJavaScript(script);
     }

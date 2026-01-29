@@ -8,37 +8,50 @@ export interface IElectronAPI {
     updatePresence: (data: SetActivity) => void;
     lobbyData: () => any | null;
     getScriptBundle: () => Promise<string>;
+    isGameLoaded: () => boolean;
+    onGameLoaded: (callback: () => void) => void;
 }
 
 // TODO: type this properly
 let internalLobbyData: any | null = null;
+let gameLoaded: boolean = false;
 
 window.addEventListener("message", (event: MessageEvent<any>) => {
-    if (event.source === window && event.data?.type === "INTERCEPTED_DATA") {
-        let payload: any = event.data.data;
+    if (event.source === window) {
+        if (event.data?.type === "INTERCEPTED_DATA") {
+            let payload: any = event.data.data;
 
-        const parsed = parseSocketIO(payload);
-        // We want to intercept only messages
-        if (!parsed || parsed.engineType !== 4 || parsed.socketType !== 2) {
-            return;
-        }
-        if (!parsed.data || parsed.data.event !== "data") {
-            return;
-        }
-        payload = parsed.data.args[0].data;
-        if (
-            !payload ||
-            !payload.hasOwnProperty("owner") ||
-            !payload.hasOwnProperty("me") ||
-            !payload.hasOwnProperty("users")
-        ) {
-            return;
-        }
+            const parsed = parseSocketIO(payload);
+            // We want to intercept only messages
+            if (!parsed || parsed.engineType !== 4 || parsed.socketType !== 2) {
+                return;
+            }
+            if (!parsed.data || parsed.data.event !== "data") {
+                return;
+            }
+            payload = parsed.data.args[0].data;
+            if (
+                !payload ||
+                !payload.hasOwnProperty("owner") ||
+                !payload.hasOwnProperty("me") ||
+                !payload.hasOwnProperty("users")
+            ) {
+                return;
+            }
 
-        // Maybe I should clean this up some day
-        internalLobbyData = payload;
+            // Maybe I should clean this up some day
+            internalLobbyData = payload;
 
-        console.debug(`[skribbltypo-desktop] Parsed data:`, internalLobbyData);
+            console.debug(
+                `[skribbltypo-desktop] Parsed data:`,
+                internalLobbyData,
+            );
+        } else if (event.data?.type === "GAME_LOADED") {
+            gameLoaded = true;
+            console.debug(
+                "[skribbltypo-desktop] Game Loaded detected in preload context",
+            );
+        }
     }
 });
 
@@ -49,6 +62,16 @@ contextBridge.exposeInMainWorld("electronAPI", {
     updatePresence: (data) => ipcRenderer.send("update-presence", data),
     lobbyData: () => internalLobbyData,
     getScriptBundle: () => ipcRenderer.invoke("get-script-bundle"),
+    isGameLoaded: () => gameLoaded,
+    onGameLoaded: (callback) => {
+        if (gameLoaded) {
+            callback();
+            return;
+        }
+        window.addEventListener("skribbltypo:game-loaded", () => callback(), {
+            once: true,
+        });
+    },
 } as IElectronAPI);
 
 const script: string = `
@@ -77,6 +100,24 @@ const script: string = `
     window.WebSocket = PatchedWebSocket;
 
     console.debug("[skribbltypo-desktop] WebSocket Overwritten");
+
+    // Fallback timer
+    const fallback = setTimeout(() => {
+        window.postMessage({ type: "GAME_LOADED" }, "*");
+        window.dispatchEvent(new CustomEvent("skribbltypo:game-loaded"));
+    }, 10000);
+
+    // Overload console.log
+    const originalLog = console.log;
+    console.log = function(...args) {
+        originalLog.apply(console, args);
+        const fullMessage = args.join(" ");
+        if (fullMessage.includes("[INTERCEPTOR DEBUG] Game patch loaded")) {
+            clearTimeout(fallback);
+            window.postMessage({ type: "GAME_LOADED" }, "*");
+            window.dispatchEvent(new CustomEvent("skribbltypo:game-loaded"));
+        }
+    };
 })();
 `;
 webFrame.executeJavaScript(script);

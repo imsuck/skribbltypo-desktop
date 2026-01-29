@@ -34,7 +34,10 @@ export function setupMenu(
                 };
                 const id: string | null = getId(cbContent);
                 if (id) {
-                    mainWindow.loadURL(`https://skribbl.io/?${id}`);
+                    mainWindow.webContents.executeJavaScript(`
+                        sessionStorage.setItem("skribbltypo-autoplay", "true");
+                        window.location.href = "https://skribbl.io/?${id}";
+                    `);
                 } else {
                     mainWindow.webContents.executeJavaScript(`
                         (() => {
@@ -66,6 +69,7 @@ export function setupMenu(
                                 const id = match ? match[1] : val;
 
                                 if (id.length === 8) {
+                                    sessionStorage.setItem("skribbltypo-autoplay", "true");
                                     window.location.href = "https://skribbl.io/?" + id;
                                     container.remove();
                                 } else {

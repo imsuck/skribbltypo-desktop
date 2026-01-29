@@ -40,7 +40,7 @@ const LANGUAGE_CODES: Record<string, string> = {
     Turkish: "tr",
 };
 
-const script = (() => {
+(() => {
     console.debug("[skribbltypo-desktop] Game Observer starting...");
 
     const observeGameEvents = () => {
@@ -248,6 +248,65 @@ const script = (() => {
         );
     };
 
+    const handleAutoplay = () => {
+        if (sessionStorage.getItem("skribbltypo-autoplay") !== "true") return;
+
+        window.electronAPI.onGameLoaded(() => {
+            console.debug(
+                "[skribbltypo-desktop] Autoplay detected, waiting for play button...",
+            );
+
+            const tryClick = () => {
+                const playBtn = document.querySelector(
+                    ".button-play",
+                ) as HTMLButtonElement;
+                if (playBtn && playBtn.offsetParent !== null) {
+                    // Check if visible
+                    console.debug(
+                        "[skribbltypo-desktop] Play button found, clicking...",
+                    );
+                    playBtn.click();
+                    sessionStorage.removeItem("skribbltypo-autoplay");
+                    return true;
+                }
+                return false;
+            };
+
+            if (!tryClick()) {
+                const observer = new MutationObserver(() => {
+                    if (tryClick()) observer.disconnect();
+                });
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                });
+
+                // Fallback interval just in case
+                const interval = setInterval(() => {
+                    if (tryClick()) {
+                        clearInterval(interval);
+                        observer.disconnect();
+                    }
+                }, 500);
+
+                // Safety timeout
+                setTimeout(() => {
+                    clearInterval(interval);
+                    observer.disconnect();
+                    if (
+                        sessionStorage.getItem("skribbltypo-autoplay") ===
+                        "true"
+                    ) {
+                        console.debug(
+                            "[skribbltypo-desktop] Autoplay timed out",
+                        );
+                        sessionStorage.removeItem("skribbltypo-autoplay");
+                    }
+                }, 10000);
+            }
+        });
+    };
+
     const rootObserver = new MutationObserver((_mutations, observer) => {
         if (document.querySelector(".overlay-content")) {
             observeGameEvents();
@@ -274,4 +333,6 @@ const script = (() => {
         rootObserver.disconnect();
         observeGameState();
     }
+
+    handleAutoplay();
 })();
