@@ -118,17 +118,21 @@ export class ScriptManager {
         await this.saveScript(content, version);
     }
 
-    public async injectScript(webContents: WebContents) {
-        try {
-            const scriptContent = await fs.readFile(this.scriptPath, "utf-8");
-            await webContents.executeJavaScript(scriptContent);
-            logger.debug("Script injected successfully");
+    public async getBundle(): Promise<string> {
+        const scripts = [
+            { path: this.scriptPath, name: "skribbltypo.user.js" },
+            { path: this.observerPath, name: "game-observer.js" },
+        ];
 
-            const gameObserver = await fs.readFile(this.observerPath, "utf-8");
-            await webContents.executeJavaScript(gameObserver);
-            logger.debug("Observer injected successfully");
-        } catch (err) {
-            logger.error("Failed to inject script:", err);
+        let bundle = "";
+        for (const script of scripts) {
+            try {
+                const content = await fs.readFile(script.path, "utf-8");
+                bundle += `//# sourceURL=skribbltypo://scripts/${script.name}\n${content}\n\n`;
+            } catch (err) {
+                logger.error(`Failed to read script ${script.name}:`, err);
+            }
         }
+        return bundle;
     }
 }

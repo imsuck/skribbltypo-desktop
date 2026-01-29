@@ -40,7 +40,7 @@ const LANGUAGE_CODES: Record<string, string> = {
     Turkish: "tr",
 };
 
-(function () {
+const script = (() => {
     console.debug("[skribbltypo-desktop] Game Observer starting...");
 
     const observeGameEvents = () => {
@@ -104,57 +104,53 @@ const LANGUAGE_CODES: Record<string, string> = {
         let gameMode: string = "Normal";
 
         let startTime: number | null = null;
-
-        let updateTimeout: NodeJS.Timeout | null = null;
+        let lastPresenceHash: string = "";
 
         const syncPresence = () => {
-            if (updateTimeout) clearTimeout(updateTimeout);
-            updateTimeout = setTimeout(() => {
-                const gameDiv = document.getElementById("game");
-                if (!gameDiv) return;
-                let presenceData: SetActivity = {};
-                if (gameDiv.style.display === "none") {
-                    startTime = null;
-                    presenceData = {
-                        details: "In menus",
-                        largeImageKey: "in_menus",
-                        largeImageText: playerName || "skribbl.io",
-                        endTimestamp: 0,
-                    };
-                } else {
-                    if (!startTime) {
-                        startTime = Date.now();
-                    }
-
-                    const lobbyId: string | null =
-                        window.electronAPI.lobbyData()?.id;
-                    const playerCount: number =
-                        document.querySelector(".players-list")?.children
-                            .length || 0;
-                    const buttons: GatewayActivityButton[] = [];
-                    console.debug(`[skribbltypo-desktop] lobbyId: ${lobbyId}`);
-                    if (lobbyId && playerCount < maxPlayers) {
-                        buttons.push({
-                            label: "Join Lobby",
-                            url: `https://skribbl.io/?${lobbyId}`,
-                        });
-                    }
-                    presenceData = {
-                        state: `#${rank}, ${points} points`,
-                        details: `${round}`,
-                        largeImageKey: "in_game",
-                        largeImageText: playerName || "skribbl.io",
-                        smallImageKey: `flag_${LANGUAGE_CODES[language]}`,
-                        smallImageText: language,
-                        startTimestamp: startTime,
-                        partySize: playerCount,
-                        partyMax: maxPlayers || 0,
-                        buttons,
-                    };
+            const gameDiv = document.getElementById("game");
+            if (!gameDiv) return;
+            let presenceData: SetActivity = {};
+            if (gameDiv.style.display === "none") {
+                startTime = null;
+                presenceData = {
+                    details: "In menus",
+                    largeImageKey: "in_menus",
+                    largeImageText: playerName || "skribbl.io",
+                    endTimestamp: 0,
+                };
+            } else {
+                if (!startTime) {
+                    startTime = Date.now();
                 }
 
-                window.electronAPI.updatePresence(presenceData);
-            }, 1000);
+                const lobbyId: string | null =
+                    window.electronAPI.lobbyData()?.id;
+                const playerCount: number =
+                    document.querySelector(".players-list")?.children.length ||
+                    0;
+                const buttons: GatewayActivityButton[] = [];
+                console.debug(`[skribbltypo-desktop] lobbyId: ${lobbyId}`);
+                if (lobbyId && playerCount < maxPlayers) {
+                    buttons.push({
+                        label: "Join Lobby",
+                        url: `https://skribbl.io/?${lobbyId}`,
+                    });
+                }
+                presenceData = {
+                    state: `#${rank}, ${points} points`,
+                    details: `${round}`,
+                    largeImageKey: "in_game",
+                    largeImageText: playerName || "skribbl.io",
+                    smallImageKey: `flag_${LANGUAGE_CODES[language]}`,
+                    smallImageText: language,
+                    startTimestamp: startTime,
+                    partySize: playerCount,
+                    partyMax: maxPlayers || 0,
+                    buttons,
+                };
+            }
+
+            window.electronAPI.updatePresence(presenceData);
         };
 
         const updateLobbySettings = () => {
@@ -222,19 +218,27 @@ const LANGUAGE_CODES: Record<string, string> = {
             updateLobbySettings();
             updateRoundInfo();
             updatePlayerStats();
-            syncPresence();
+
+            const currentHash = JSON.stringify({
+                playerName,
+                round,
+                language,
+                rank,
+                points,
+                maxPlayers,
+                display: document.getElementById("game")?.style.display,
+                playerCount:
+                    document.querySelector(".players-list")?.children.length,
+                lobbyId: window.electronAPI.lobbyData()?.id,
+            });
+
+            if (currentHash !== lastPresenceHash) {
+                lastPresenceHash = currentHash;
+                syncPresence();
+            }
         };
 
-        const observer = new MutationObserver(() => {
-            handleChanges();
-        });
-
-        observer.observe(document.querySelector("#game-wrapper")!, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-            attributes: true,
-        });
+        setInterval(handleChanges, 2000);
 
         // Initial update
         handleChanges();
@@ -244,7 +248,7 @@ const LANGUAGE_CODES: Record<string, string> = {
         );
     };
 
-    const rootObserver = new MutationObserver((mutations, observer) => {
+    const rootObserver = new MutationObserver((_mutations, observer) => {
         if (document.querySelector(".overlay-content")) {
             observeGameEvents();
         }
@@ -267,6 +271,7 @@ const LANGUAGE_CODES: Record<string, string> = {
         document.querySelector(".players-list") ||
         document.querySelector(".group-settings")
     ) {
+        rootObserver.disconnect();
         observeGameState();
     }
 })();

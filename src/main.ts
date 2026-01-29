@@ -1,12 +1,4 @@
-import {
-    app,
-    BrowserWindow,
-    Menu,
-    MenuItem,
-    ipcMain,
-    dialog,
-    Notification,
-} from "electron";
+import { app, BrowserWindow, ipcMain, Notification } from "electron";
 import * as path from "path";
 
 import { logger } from "./logger.js";
@@ -14,6 +6,7 @@ import { ScriptManager } from "./script-manager.js";
 import { DiscordRPCManager } from "./discord-rpc.js";
 // @ts-ignore LSP couldn't find the file :(
 import mainStyles from "./css/style.css?raw";
+import { setupMenu } from "./menu.js";
 
 let mainWindow: BrowserWindow | null = null;
 const scriptManager = new ScriptManager();
@@ -40,14 +33,15 @@ function createWindow() {
         mainWindow.webContents.insertCSS(mainStyles).catch((err) => {
             logger.error("Failed to inject CSS:", err);
         });
-        scriptManager.injectScript(mainWindow.webContents).catch((err) => {
-            logger.error("Failed to inject script:", err);
-        });
         scriptManager.showUpdatePopup(mainWindow.webContents).catch((err) => {
             logger.error("Failed to show update popup:", err);
         });
     });
 }
+
+ipcMain.handle("get-script-bundle", async () => {
+    return await scriptManager.getBundle();
+});
 
 ipcMain.on("update-script", async () => {
     try {
@@ -76,7 +70,7 @@ ipcMain.on("update-script", async () => {
     }
 });
 
-ipcMain.on("show-notification", (event, { title, body }) => {
+ipcMain.on("show-notification", (_event, { title, body }) => {
     if (mainWindow && mainWindow.isFocused()) return;
 
     const notification = new Notification({
@@ -96,62 +90,18 @@ ipcMain.on("show-notification", (event, { title, body }) => {
     notification.show();
 });
 
-ipcMain.on("update-presence", (event, data) => {
+ipcMain.on("update-presence", (_event, data) => {
     discordRPC.updateActivity(data).catch((err) => {
         logger.error("Failed to update Discord presence:", err);
     });
 });
 
-const mainMenu = new Menu();
-
-if (process.platform === "darwin") {
-    const appMenu = new MenuItem({ role: "appMenu" });
-    mainMenu.append(appMenu);
-}
-
-const submenu = Menu.buildFromTemplate([
-    {
-        label: "Reload",
-        click: () => {
-            if (!mainWindow) return;
-            mainWindow.reload();
-        },
-        accelerator: "CmdOrCtrl+R",
-    },
-    {
-        label: "Force Reload",
-        click: () => {
-            if (!mainWindow) return;
-            mainWindow.webContents.reloadIgnoringCache();
-        },
-        accelerator: "CmdOrCtrl+Shift+R",
-    },
-    {
-        label: "Open DevTools",
-        click: () => {
-            if (!mainWindow) return;
-            mainWindow.webContents.openDevTools();
-        },
-        accelerator: "CmdOrCtrl+Shift+I",
-    },
-    {
-        label: "Check for Updates",
-        click: () => {
-            if (!mainWindow) return;
-            scriptManager.checkForUpdates().catch((err) => {
-                logger.error("Manual update check failed:", err);
-            });
-        },
-    },
-]);
-mainMenu.append(new MenuItem({ label: "Skribbl.io Desktop", submenu }));
-
-Menu.setApplicationMenu(mainMenu);
-
 app.whenReady().then(async () => {
     await scriptManager.checkForUpdates();
     await discordRPC.login();
     createWindow();
+
+    setupMenu(mainWindow!, scriptManager);
 
     app.on("activate", () => {
         if (BrowserWindow.getAllWindows().length === 0) {

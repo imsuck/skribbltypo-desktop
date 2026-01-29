@@ -7,6 +7,7 @@ export interface IElectronAPI {
     showNotification: (title: string, body: string) => void;
     updatePresence: (data: SetActivity) => void;
     lobbyData: () => any | null;
+    getScriptBundle: () => Promise<string>;
 }
 
 // TODO: type this properly
@@ -47,6 +48,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
         ipcRenderer.send("show-notification", { title, body }),
     updatePresence: (data) => ipcRenderer.send("update-presence", data),
     lobbyData: () => internalLobbyData,
+    getScriptBundle: () => ipcRenderer.invoke("get-script-bundle"),
 } as IElectronAPI);
 
 const script: string = `
@@ -78,3 +80,7 @@ const script: string = `
 })();
 `;
 webFrame.executeJavaScript(script);
+
+ipcRenderer.invoke("get-script-bundle").then((bundle: string) => {
+    webFrame.executeJavaScript(bundle);
+});

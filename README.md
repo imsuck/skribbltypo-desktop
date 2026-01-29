@@ -13,5 +13,5 @@ Grab the latest release [here](https://github.com/imsuck/skribbltypo-desktop/rel
 ## TODOs
 
 - [ ] **Auto-Updater** with `electron-updater` for wrapper updates.
-- [ ] **Discord Rich Presence**: Show current game status (points, name, etc.).
+- [x] **Discord Rich Presence**: Show current game status (points, name, etc.).
 - [ ] **Settings UI**: Native window (or more HTML injection) for toggling notifications and Discord-RPC.
