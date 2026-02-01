@@ -107,17 +107,42 @@ const script: string = `
         window.dispatchEvent(new CustomEvent("skribbltypo:game-loaded"));
     }, 10000);
 
-    // Overload console.log
-    const originalLog = console.log;
-    console.log = function(...args) {
-        originalLog.apply(console, args);
-        const fullMessage = args.join(" ");
-        if (fullMessage.includes("[INTERCEPTOR DEBUG] Game patch loaded")) {
-            clearTimeout(fallback);
-            window.postMessage({ type: "GAME_LOADED" }, "*");
-            window.dispatchEvent(new CustomEvent("skribbltypo:game-loaded"));
-        }
+    const onLoaded = () => {
+        clearTimeout(fallback);
+        window.postMessage({ type: "GAME_LOADED" }, "*");
+        window.dispatchEvent(new CustomEvent("skribbltypo:game-loaded"));
     };
+
+    const setupBodyObserver = () => {
+        if (document.body.dataset["typo_loaded"] === "true") {
+            onLoaded();
+            return;
+        }
+
+        const observer = new MutationObserver(() => {
+            if (document.body.dataset["typo_loaded"] === "true") {
+                onLoaded();
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ["data-typo_loaded"],
+        });
+    };
+
+    if (document.body) {
+        setupBodyObserver();
+    } else {
+        const bodyWatcher = new MutationObserver(() => {
+            if (document.body) {
+                bodyWatcher.disconnect();
+                setupBodyObserver();
+            }
+        });
+        bodyWatcher.observe(document.documentElement, { childList: true });
+    }
 })();
 `;
 webFrame.executeJavaScript(script);
