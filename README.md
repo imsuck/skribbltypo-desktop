@@ -1,5 +1,9 @@
 # Skribbltypo Desktop
 
+- [Features](#features)
+- [Logging in to typo](#logging-in-to-typo)
+- [Credits](#credits)
+
 > [!Note]
 > This project is pretty much entirely "AI slop".
 >
@@ -15,6 +19,18 @@ Grab the latest release [here](https://github.com/imsuck/skribbltypo-desktop/rel
 - DiscordRPC for in-game status
 - Join lobbies with `F4`, link/lobby id will be fetch from system clipboard (or manually input the id through a popup).
 - `skribbl://<lobby-id>` for joining directly from browsers or Discord.
+
+## Logging in to typo
+
+Due to the limitations of Electron.js, logging into typo requires manually retrieving your user token:
+
+- Go to the [typo profile page](https://www.typo.rip/user)
+- Open DevTools
+    - In Firefox, open the `Storage` tab
+    - In Chromium-based browsers, open the `Application` tab
+- Navigate to `Local Storage > www.typo.rip > AUTH_BEARER`
+- Copy the token (by double-clicking on the value field, if you didn't know)
+  Then, enter the token into the "User Info" feature of typo, and you should be good to go.
 
 ## Credits
 

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Notification, shell } from "electron";
+import { app, BrowserWindow, ipcMain, Notification } from "electron";
 import * as path from "path";
 
 import { logger } from "./logger.js";
@@ -84,13 +84,11 @@ function createWindow() {
     mainWindow.webContents.on("will-navigate", (event, url) => {
         if (!url.startsWith("https://skribbl.io")) {
             event.preventDefault();
-            shell.openExternal(url);
         }
     });
 
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (!url.startsWith("https://skribbl.io")) {
-            shell.openExternal(url);
             return { action: "deny" };
         }
         return { action: "allow" };
