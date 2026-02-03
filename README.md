@@ -42,5 +42,5 @@ Due to the limitations of Electron.js, logging into typo requires manually retri
 - [ ] **Auto-Updater** with `electron-updater` for wrapper updates.
 - [x] **Discord Rich Presence**: Show current game status (points, name, etc.).
 - [ ] **Settings UI**: Native window (or more HTML injection) for toggling notifications and Discord-RPC.
-- [ ] Don't redirect outside of skribbl, open the default browser instead.
+- [x] Don't redirect outside of skribbl.
 - [ ] Fix bug when switching profiles.
