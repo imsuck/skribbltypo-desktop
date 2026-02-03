@@ -5,62 +5,128 @@ export enum LogLevel {
     ERROR = 3,
 }
 
+/** ANSI codes for Node/terminal (main process). */
 const Colors = {
     Reset: "\x1b[0m",
     Bright: "\x1b[1m",
     Dim: "\x1b[2m",
-    Underscore: "\x1b[4m",
-    Blink: "\x1b[5m",
-    Reverse: "\x1b[7m",
-    Hidden: "\x1b[8m",
-
-    FgBlack: "\x1b[30m",
     FgRed: "\x1b[31m",
     FgGreen: "\x1b[32m",
     FgYellow: "\x1b[33m",
-    FgBlue: "\x1b[34m",
-    FgMagenta: "\x1b[35m",
     FgCyan: "\x1b[36m",
-    FgWhite: "\x1b[37m",
-
-    BgBlack: "\x1b[40m",
-    BgRed: "\x1b[41m",
-    BgGreen: "\x1b[42m",
-    BgYellow: "\x1b[43m",
-    BgBlue: "\x1b[44m",
-    BgMagenta: "\x1b[45m",
-    BgCyan: "\x1b[46m",
-    BgWhite: "\x1b[47m",
 };
 
+/** CSS for browser DevTools (preload/renderer). See https://stackoverflow.com/a/13017382 */
+const BrowserStyles = {
+    dim: "color: #666;",
+    debug: "color: #0e7490; font-weight: bold;",
+    info: "color: #15803d; font-weight: bold;",
+    warn: "color: #a16207; font-weight: bold;",
+    error: "color: #b91c1c; font-weight: bold;",
+    reset: "color: inherit; font-weight: normal;",
+};
+
+function isBrowserContext(): boolean {
+    return typeof window !== "undefined";
+}
+
+function formatArgs(...args: unknown[]): string {
+    return args
+        .map((arg) =>
+            typeof arg === "object" && arg !== null
+                ? JSON.stringify(arg, null, 2)
+                : String(arg),
+        )
+        .join(" ");
+}
+
 class Logger {
-    private formatMessage(
+    private formatMessageNode(
         level: string,
         color: string,
-        ...args: any[]
+        ...args: unknown[]
     ): string {
         const timestamp = new Date().toLocaleTimeString("en-GB", {
             hour12: false,
         });
-        const levelTag = `${color}[${level}]${Colors.Reset}`;
+        const levelTag = `[${color}${level}${Colors.Reset}]`;
         const prefix = `${Colors.Dim}${timestamp}${Colors.Reset} ${levelTag}`;
-        return `${prefix} ${args.map((arg) => (typeof arg === "object" ? JSON.stringify(arg, null, 2) : arg)).join(" ")}`;
+        return `${prefix} ${formatArgs(...args)}`;
     }
 
-    public debug(...args: any[]) {
-        console.debug(this.formatMessage("DEBUG", Colors.FgCyan, ...args));
+    private formatMessageBrowser(
+        level: string,
+        levelStyle: string,
+        method: "debug" | "info" | "warn" | "error",
+        ...args: unknown[]
+    ): void {
+        const timestamp = new Date().toLocaleTimeString("en-GB", {
+            hour12: false,
+        });
+        // Prefix only in the template so we can pass raw args; objects stay collapsible in DevTools
+        const template = `%c${timestamp} [%c${level}%c] `;
+        const styles = [BrowserStyles.dim, levelStyle, BrowserStyles.reset];
+        (console[method] as typeof console.log)(template, ...styles, ...args);
     }
 
-    public info(...args: any[]) {
-        console.info(this.formatMessage("INFO", Colors.FgGreen, ...args));
+    public debug(...args: unknown[]) {
+        if (isBrowserContext()) {
+            this.formatMessageBrowser(
+                "DEBUG",
+                BrowserStyles.debug,
+                "debug",
+                ...args,
+            );
+        } else {
+            console.debug(
+                this.formatMessageNode("DEBUG", Colors.FgCyan, ...args),
+            );
+        }
     }
 
-    public warn(...args: any[]) {
-        console.warn(this.formatMessage("WARN", Colors.FgYellow, ...args));
+    public info(...args: unknown[]) {
+        if (isBrowserContext()) {
+            this.formatMessageBrowser(
+                "INFO",
+                BrowserStyles.info,
+                "info",
+                ...args,
+            );
+        } else {
+            console.info(
+                this.formatMessageNode("INFO", Colors.FgGreen, ...args),
+            );
+        }
     }
 
-    public error(...args: any[]) {
-        console.error(this.formatMessage("ERROR", Colors.FgRed, ...args));
+    public warn(...args: unknown[]) {
+        if (isBrowserContext()) {
+            this.formatMessageBrowser(
+                "WARN",
+                BrowserStyles.warn,
+                "warn",
+                ...args,
+            );
+        } else {
+            console.warn(
+                this.formatMessageNode("WARN", Colors.FgYellow, ...args),
+            );
+        }
+    }
+
+    public error(...args: unknown[]) {
+        if (isBrowserContext()) {
+            this.formatMessageBrowser(
+                "ERROR",
+                BrowserStyles.error,
+                "error",
+                ...args,
+            );
+        } else {
+            console.error(
+                this.formatMessageNode("ERROR", Colors.FgRed, ...args),
+            );
+        }
     }
 }
 

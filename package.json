@@ -53,7 +53,15 @@
             "perMachine": false,
             "createDesktopShortcut": true,
             "createStartMenuShortcut": true
-        }
+        },
+        "protocols": [
+            {
+                "name": "skribbltypo-desktop",
+                "schemes": [
+                    "skribbl"
+                ]
+            }
+        ]
     },
     "devDependencies": {
         "@types/node": "^25.0.9",

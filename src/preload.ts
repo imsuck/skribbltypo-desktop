@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer, webFrame } from "electron";
 import type { SetActivity } from "@visoftware/discord-rpc";
+import { logger } from "./logger.js";
 import { parseSocketIO } from "./utils/socket-io.js";
 
 export interface IElectronAPI {
@@ -34,7 +35,9 @@ window.addEventListener("message", (event: MessageEvent<any>) => {
                 !payload ||
                 !payload.hasOwnProperty("owner") ||
                 !payload.hasOwnProperty("me") ||
-                !payload.hasOwnProperty("users")
+                !payload.hasOwnProperty("users") ||
+                !payload.hasOwnProperty("id") ||
+                payload.id.length !== 8
             ) {
                 return;
             }
@@ -42,15 +45,13 @@ window.addEventListener("message", (event: MessageEvent<any>) => {
             // Maybe I should clean this up some day
             internalLobbyData = payload;
 
-            console.debug(
-                `[skribbltypo-desktop] Parsed data:`,
+            logger.debug(
+                "[skribbltypo-desktop] Parsed data:",
                 internalLobbyData,
             );
         } else if (event.data?.type === "GAME_LOADED") {
             gameLoaded = true;
-            console.debug(
-                "[skribbltypo-desktop] Game Loaded detected in preload context",
-            );
+            logger.debug("[skribbltypo-desktop] Game Loaded");
         }
     }
 });

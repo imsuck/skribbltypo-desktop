@@ -1,6 +1,7 @@
 import { type SetActivity } from "@visoftware/discord-rpc";
 import { type GatewayActivityButton } from "discord-api-types/v10";
 
+import { logger } from "./logger.js";
 import { type IElectronAPI } from "./preload.js";
 
 declare global {
@@ -41,7 +42,7 @@ const LANGUAGE_CODES: Record<string, string> = {
 };
 
 (() => {
-    console.debug("[skribbltypo-desktop] Game Observer starting...");
+    logger.debug("[skribbltypo-desktop] Game Observer starting...");
 
     const observeGameEvents = () => {
         const overlay = document.querySelector(".overlay-content");
@@ -89,7 +90,7 @@ const LANGUAGE_CODES: Record<string, string> = {
             characterData: true,
         });
 
-        console.debug(
+        logger.debug(
             "[skribbltypo-desktop] Game Observer attached to .overlay-content",
         );
     };
@@ -129,11 +130,15 @@ const LANGUAGE_CODES: Record<string, string> = {
                     document.querySelector(".players-list")?.children.length ||
                     0;
                 const buttons: GatewayActivityButton[] = [];
-                console.debug(`[skribbltypo-desktop] lobbyId: ${lobbyId}`);
+                logger.debug("[skribbltypo-desktop] lobbyId:", lobbyId);
                 if (lobbyId && playerCount < maxPlayers) {
                     buttons.push({
                         label: "Join Lobby",
                         url: `https://skribbl.io/?${lobbyId}`,
+                    });
+                    buttons.push({
+                        label: "Join Lobby (Desktop)",
+                        url: `skribbl://${lobbyId}`,
                     });
                 }
                 presenceData = {
@@ -149,7 +154,6 @@ const LANGUAGE_CODES: Record<string, string> = {
                     buttons,
                 };
             }
-
             window.electronAPI.updatePresence(presenceData);
         };
 
@@ -243,7 +247,7 @@ const LANGUAGE_CODES: Record<string, string> = {
         // Initial update
         handleChanges();
 
-        console.debug(
+        logger.debug(
             "[skribbltypo-desktop] Game Observer active and syncing presence",
         );
     };
@@ -252,7 +256,7 @@ const LANGUAGE_CODES: Record<string, string> = {
         if (sessionStorage.getItem("skribbltypo-autoplay") !== "true") return;
 
         window.electronAPI.onGameLoaded(() => {
-            console.debug(
+            logger.debug(
                 "[skribbltypo-desktop] Autoplay detected, waiting for play button...",
             );
 
@@ -262,7 +266,7 @@ const LANGUAGE_CODES: Record<string, string> = {
                 ) as HTMLButtonElement;
                 if (playBtn && playBtn.offsetParent !== null) {
                     // Check if visible
-                    console.debug(
+                    logger.debug(
                         "[skribbltypo-desktop] Play button found, clicking...",
                     );
                     playBtn.click();
@@ -297,7 +301,7 @@ const LANGUAGE_CODES: Record<string, string> = {
                         sessionStorage.getItem("skribbltypo-autoplay") ===
                         "true"
                     ) {
-                        console.debug(
+                        logger.debug(
                             "[skribbltypo-desktop] Autoplay timed out",
                         );
                         sessionStorage.removeItem("skribbltypo-autoplay");

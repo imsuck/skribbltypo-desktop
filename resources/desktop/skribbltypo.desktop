@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Skribbltypo Desktop
+Exec=skribbltypo-desktop.AppImage
+Icon=skribbltypo-desktop
+Type=Application
+Comment=Desktop client for skribbl.io (along with skribbltypo)
+Terminal=false
+MimeType=x-scheme-handler/skribbl

@@ -1,10 +1,12 @@
 import { Client, type SetActivity } from "@visoftware/discord-rpc";
 import { logger } from "./logger.js";
+import { hashObject } from "./utils/hashing.js";
 
 export class DiscordRPCManager {
     private client: Client;
     private readonly clientId: string = "1464612778244571177";
     private ready: boolean = false;
+    private prevActivityHash: string | null = null;
 
     constructor() {
         this.client = new Client({
@@ -24,6 +26,7 @@ export class DiscordRPCManager {
 
     public async login(): Promise<boolean> {
         if (this.ready) return true;
+
         try {
             await this.client.login();
             return true;
@@ -34,17 +37,21 @@ export class DiscordRPCManager {
     }
 
     public async updateActivity(data: SetActivity) {
-        if (!this.login() || !this.client.user) return;
+        if (!(await this.login()) || !this.client.user) return;
+
+        const newHash = hashObject(data);
+        if (this.prevActivityHash === newHash) return;
 
         try {
             await this.client.user.setActivity(data);
+            this.prevActivityHash = newHash;
         } catch (err) {
             logger.error("Failed to set Discord activity:", err);
         }
     }
 
     public async clearActivity() {
-        if (!this.login() || !this.client.user) return;
+        if (!(await this.login()) || !this.client.user) return;
 
         try {
             await this.client.user.clearActivity();
