@@ -130,6 +130,20 @@ export function setupMenu(
         },
     ]);
     mainMenu.append(new MenuItem({ label: "Skribbl.io Desktop", submenu }));
+    mainMenu.append(
+        new MenuItem({
+            label: "Edit",
+            submenu: [
+                { role: "undo" },
+                { role: "redo" },
+                { type: "separator" },
+                { role: "cut" },
+                { role: "copy" },
+                { role: "paste" },
+                { role: "selectAll" },
+            ],
+        }),
+    );
 
     Menu.setApplicationMenu(mainMenu);
 }
