@@ -1,7 +1,9 @@
 import { logger } from "../../logger.ts";
 
 export default (latest: string, current: string) => {
-    logger.debug(`[skribbltypo-desktop] Update Popup initializing (latest: ${latest})...`);
+    logger.debug(
+        `[skribbltypo-desktop] Update Popup initializing (latest: ${latest})...`,
+    );
     if (document.getElementById("skribbltypo-update-popup")) return;
     const container = document.createElement("div");
     container.id = "skribbltypo-update-popup";
@@ -31,4 +33,4 @@ export default (latest: string, current: string) => {
             container.remove();
         };
     }
-}
+};

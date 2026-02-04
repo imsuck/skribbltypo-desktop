@@ -33,7 +33,10 @@ window.addEventListener("message", (event: MessageEvent<any>) => {
             }
 
             internalLobbyData = payload;
-            logger.debug("[skribbltypo-desktop] Parsed data:", internalLobbyData);
+            logger.debug(
+                "[skribbltypo-desktop] Parsed data:",
+                internalLobbyData,
+            );
         } else if (event.data?.type === "GAME_LOADED") {
             gameLoaded = true;
             logger.debug("[skribbltypo-desktop] Game Loaded");
@@ -45,7 +48,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
     updateScript: () => ipcRenderer.send(IPCChannel.UPDATE_SCRIPT),
     showNotification: (title, body) =>
         ipcRenderer.send(IPCChannel.SHOW_NOTIFICATION, { title, body }),
-    updatePresence: (data) => ipcRenderer.send(IPCChannel.UPDATE_PRESENCE, data),
+    updatePresence: (data) =>
+        ipcRenderer.send(IPCChannel.UPDATE_PRESENCE, data),
     lobbyData: () => internalLobbyData,
     getScriptBundle: () => ipcRenderer.invoke(IPCChannel.GET_SCRIPT_BUNDLE),
     isGameLoaded: () => gameLoaded,

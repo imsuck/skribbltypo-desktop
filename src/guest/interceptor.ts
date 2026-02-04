@@ -7,7 +7,10 @@ import { logger } from "../logger.ts";
         const ws = Reflect.construct(NativeWS, args, PatchedWebSocket);
 
         ws.addEventListener("message", (event: MessageEvent) => {
-            window.postMessage({ type: "INTERCEPTED_DATA", data: event.data }, "*");
+            window.postMessage(
+                { type: "INTERCEPTED_DATA", data: event.data },
+                "*",
+            );
         });
 
         return ws;

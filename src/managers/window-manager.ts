@@ -7,7 +7,7 @@ export class WindowManager {
     private heldKeys = new Set<string>();
     private potentialToggle = false;
 
-    constructor(private readonly mainStyles: string) { }
+    constructor(private readonly mainStyles: string) {}
 
     public createMainWindow(): BrowserWindow {
         this.mainWindow = new BrowserWindow({
@@ -107,9 +107,11 @@ export class WindowManager {
 
         this.mainWindow.webContents.on("did-finish-load", () => {
             if (!this.mainWindow) return;
-            this.mainWindow.webContents.insertCSS(this.mainStyles).catch((err) => {
-                logger.error("Failed to inject CSS:", err);
-            });
+            this.mainWindow.webContents
+                .insertCSS(this.mainStyles)
+                .catch((err) => {
+                    logger.error("Failed to inject CSS:", err);
+                });
         });
     }
 

@@ -10,7 +10,7 @@ export class IPCManager {
         private windowManager: WindowManager,
         private scriptManager: ScriptManager,
         private discordRPC: DiscordRPCManager,
-    ) { }
+    ) {}
 
     public registerHandlers() {
         ipcMain.handle(IPCChannel.GET_SCRIPT_BUNDLE, async () => {
@@ -42,26 +42,29 @@ export class IPCManager {
             }
         });
 
-        ipcMain.on(IPCChannel.SHOW_NOTIFICATION, (_event, { title, body }: NotificationPayload) => {
-            const mainWindow = this.windowManager.getWindow();
-            if (mainWindow && mainWindow.isFocused()) return;
+        ipcMain.on(
+            IPCChannel.SHOW_NOTIFICATION,
+            (_event, { title, body }: NotificationPayload) => {
+                const mainWindow = this.windowManager.getWindow();
+                if (mainWindow && mainWindow.isFocused()) return;
 
-            const notification = new Notification({
-                title,
-                body,
-                silent: false,
-            });
+                const notification = new Notification({
+                    title,
+                    body,
+                    silent: false,
+                });
 
-            notification.on("click", () => {
-                if (mainWindow) {
-                    if (mainWindow.isMinimized()) mainWindow.restore();
-                    mainWindow.show();
-                    mainWindow.focus();
-                }
-            });
+                notification.on("click", () => {
+                    if (mainWindow) {
+                        if (mainWindow.isMinimized()) mainWindow.restore();
+                        mainWindow.show();
+                        mainWindow.focus();
+                    }
+                });
 
-            notification.show();
-        });
+                notification.show();
+            },
+        );
 
         ipcMain.on(IPCChannel.UPDATE_PRESENCE, (_event, data) => {
             this.discordRPC.updateActivity(data).catch((err) => {

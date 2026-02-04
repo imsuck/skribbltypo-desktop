@@ -15,9 +15,15 @@ import { logger } from "../../logger.ts";
     `;
     document.body.appendChild(container);
 
-    const input = document.getElementById("skribbltypo-join-input") as HTMLInputElement;
-    const joinBtn = document.getElementById("skribbltypo-join-btn") as HTMLButtonElement;
-    const cancelBtn = document.getElementById("skribbltypo-join-cancel-btn") as HTMLButtonElement;
+    const input = document.getElementById(
+        "skribbltypo-join-input",
+    ) as HTMLInputElement;
+    const joinBtn = document.getElementById(
+        "skribbltypo-join-btn",
+    ) as HTMLButtonElement;
+    const cancelBtn = document.getElementById(
+        "skribbltypo-join-cancel-btn",
+    ) as HTMLButtonElement;
 
     if (input) input.focus();
 
