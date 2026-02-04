@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Notification } from "electron";
+import { app, BrowserWindow, ipcMain, Notification, clipboard } from "electron";
 import * as path from "path";
 
 import { logger } from "./logger.js";
@@ -92,6 +92,50 @@ function createWindow() {
             return { action: "deny" };
         }
         return { action: "allow" };
+    });
+
+    const heldKeys = new Set<string>();
+    let potentialToggle = false;
+
+    mainWindow.on("blur", () => {
+        heldKeys.clear();
+        potentialToggle = false;
+    });
+
+    mainWindow.webContents.on("before-input-event", (event, input) => {
+        if (input.type === "keyDown") {
+            heldKeys.add(input.code);
+            if (input.key === "Alt") {
+                potentialToggle = heldKeys.size === 1;
+            } else if (input.key !== "Alt") {
+                potentialToggle = false;
+            }
+        } else if (input.type == "keyUp") {
+            if (input.key === "Alt") {
+                event.preventDefault();
+                if (potentialToggle) {
+                    mainWindow?.setMenuBarVisibility(
+                        !mainWindow.isMenuBarVisible(),
+                    );
+                }
+            }
+            heldKeys.delete(input.code);
+            potentialToggle = false;
+        }
+
+        if (
+            input.type === "keyDown" &&
+            input.key.toLowerCase() === "c" &&
+            (process.platform === "darwin" ? input.meta : input.control)
+        ) {
+            mainWindow?.webContents
+                .executeJavaScript("window.getSelection().toString()")
+                .then((selection) => {
+                    if (selection) {
+                        clipboard.writeText(selection);
+                    }
+                });
+        }
     });
 
     mainWindow.on("closed", () => {

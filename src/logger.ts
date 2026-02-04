@@ -44,14 +44,13 @@ class Logger {
     private formatMessageNode(
         level: string,
         color: string,
-        ...args: unknown[]
     ): string {
         const timestamp = new Date().toLocaleTimeString("en-GB", {
             hour12: false,
         });
         const levelTag = `[${color}${level}${Colors.Reset}]`;
         const prefix = `${Colors.Dim}${timestamp}${Colors.Reset} ${levelTag}`;
-        return `${prefix} ${formatArgs(...args)}`;
+        return `${prefix}`;
     }
 
     private formatMessageBrowser(
@@ -79,7 +78,8 @@ class Logger {
             );
         } else {
             console.debug(
-                this.formatMessageNode("DEBUG", Colors.FgCyan, ...args),
+                this.formatMessageNode("DEBUG", Colors.FgCyan),
+                ...args,
             );
         }
     }
@@ -94,7 +94,8 @@ class Logger {
             );
         } else {
             console.info(
-                this.formatMessageNode("INFO", Colors.FgGreen, ...args),
+                this.formatMessageNode("INFO", Colors.FgGreen),
+                ...args,
             );
         }
     }
@@ -109,7 +110,8 @@ class Logger {
             );
         } else {
             console.warn(
-                this.formatMessageNode("WARN", Colors.FgYellow, ...args),
+                this.formatMessageNode("WARN", Colors.FgYellow),
+                ...args,
             );
         }
     }
@@ -124,7 +126,8 @@ class Logger {
             );
         } else {
             console.error(
-                this.formatMessageNode("ERROR", Colors.FgRed, ...args),
+                this.formatMessageNode("ERROR", Colors.FgRed),
+                ...args,
             );
         }
     }
