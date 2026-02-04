@@ -1,8 +1,8 @@
-import { app, WebContents } from "electron";
+import { app, type WebContents } from "electron";
 import * as path from "path";
 import * as fs from "fs/promises";
-
 import { logger } from "./logger.js";
+import { gameObserverScript, updatePopupScript } from "./guest/bundles.ts";
 
 export class ScriptManager {
     private readonly scriptPath = path.join(
@@ -15,11 +15,6 @@ export class ScriptManager {
     );
     private readonly registryUrl =
         "https://api.github.com/repos/toobeeh/skribbltypo/releases/latest";
-    private readonly observerPath = path.join(
-        path.dirname(import.meta.dirname),
-        "dist",
-        "game-observer.js",
-    );
     private pendingUpdate: { latest: string; current: string } | null = null;
 
     private async getLocalVersion(): Promise<string | null> {
@@ -47,7 +42,7 @@ export class ScriptManager {
             });
             if (!response.ok) return null;
 
-            const release = await response.json();
+            const release: any = await response.json();
             const latestVersion = release.tag_name;
             const currentVersion = await this.getLocalVersion();
 
@@ -83,33 +78,13 @@ export class ScriptManager {
         if (!this.pendingUpdate) return;
         const { latest, current } = this.pendingUpdate;
 
-        const script = `
-            const updatePopup = () => {
-                if (document.getElementById("skribbltypo-update-popup")) return;
-                const container = document.createElement("div");
-                container.id = "skribbltypo-update-popup";
-                container.innerHTML = \`
-                    <div class="update-content">
-                        <h2>🔔 Update Available</h2>
-                        <p>A new version of skribbltypo (${latest}) is available.</p>
-                        <p>Current: ${current}</p>
-                        <button id="skribbltypo-update-btn">Update</button>
-                        <button id="skribbltypo-close-btn">Later</button>
-                    </div>
-                \`;
-                document.body.appendChild(container);
+        logger.info(`
+            (${updatePopupScript})("${latest}", "${current}");
+        `);
 
-                document.getElementById("skribbltypo-update-btn").onclick = () => {
-                    window.electronAPI.updateScript();
-                    container.remove();
-                };
-                document.getElementById("skribbltypo-close-btn").onclick = () => {
-                    container.remove();
-                };
-            };
-            window.electronAPI.onGameLoaded(updatePopup);
-        `;
-        await webContents.executeJavaScript(script);
+        await webContents.executeJavaScript(`
+            (${updatePopupScript})("${latest}", "${current}");
+        `);
     }
 
     public async downloadScript(url: string, version: string) {
@@ -119,20 +94,18 @@ export class ScriptManager {
     }
 
     public async getBundle(): Promise<string> {
-        const scripts = [
-            { path: this.scriptPath, name: "skribbltypo.user.js" },
-            { path: this.observerPath, name: "game-observer.js" },
-        ];
-
         let bundle = "";
-        for (const script of scripts) {
-            try {
-                const content = await fs.readFile(script.path, "utf-8");
-                bundle += `//# sourceURL=skribbltypo://scripts/${script.name}\n${content}\n\n`;
-            } catch (err) {
-                logger.error(`Failed to read script ${script.name}:`, err);
-            }
+
+        // needs semicolon at the end
+        bundle += `//# sourceURL=skribbltypo://scripts/game-observer.js\n${gameObserverScript};\n\n`;
+
+        try {
+            const userScript = await fs.readFile(this.scriptPath, "utf-8");
+            bundle += `//# sourceURL=skribbltypo://scripts/skribbltypo.user.js\n${userScript}\n\n`;
+        } catch (err) {
+            logger.error("Failed to read skribbltypo.user.js from disk:", err);
         }
+
         return bundle;
     }
 }

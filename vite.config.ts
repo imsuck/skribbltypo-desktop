@@ -41,24 +41,6 @@ export default defineConfig({
                     },
                 },
             },
-            {
-                entry: "src/game-observer.ts",
-                onstart(args) {
-                    args.reload();
-                },
-                vite: {
-                    build: {
-                        outDir: "dist",
-                        minify: true,
-                        rollupOptions: {
-                            output: {
-                                entryFileNames: "game-observer.js",
-                                format: "iife",
-                            },
-                        },
-                    },
-                },
-            },
         ]),
     ],
 });

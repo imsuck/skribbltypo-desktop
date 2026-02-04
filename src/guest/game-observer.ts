@@ -1,8 +1,8 @@
 import { type SetActivity } from "@visoftware/discord-rpc";
 import { type GatewayActivityButton } from "discord-api-types/v10";
 
-import { logger } from "./logger.js";
-import { type IElectronAPI } from "./preload.js";
+import { logger } from "../logger.ts";
+import { type IElectronAPI } from "../common/ipc.ts";
 
 declare global {
     interface Window {
