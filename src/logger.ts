@@ -41,10 +41,7 @@ function formatArgs(...args: unknown[]): string {
 }
 
 class Logger {
-    private formatMessageNode(
-        level: string,
-        color: string,
-    ): string {
+    private formatMessageNode(level: string, color: string): string {
         const timestamp = new Date().toLocaleTimeString("en-GB", {
             hour12: false,
         });
