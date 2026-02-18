@@ -127,8 +127,8 @@ const start = () => {
                 const lobbyId: string | null =
                     window.electronAPI.lobbyData()?.id;
                 const playerCount: number =
-                    document.querySelector(".players-list")?.children
-                        .length || 0;
+                    document.querySelector(".players-list")?.children.length ||
+                    0;
                 const buttons: GatewayActivityButton[] = [];
                 logger.debug("[skribbltypo-desktop] lobbyId:", lobbyId);
                 if (lobbyId && playerCount < maxPlayers) {
@@ -202,18 +202,15 @@ const start = () => {
                     .trim();
                 const playerEntry = me.closest(".player");
                 if (playerEntry) {
-                    const rankDiv =
-                        playerEntry.querySelector(".player-rank");
-                    const scoreDiv =
-                        playerEntry.querySelector(".player-score");
+                    const rankDiv = playerEntry.querySelector(".player-rank");
+                    const scoreDiv = playerEntry.querySelector(".player-score");
                     if (rankDiv)
                         rank = parseInt(
                             rankDiv.textContent?.replace("#", "") || "0",
                         );
                     if (scoreDiv)
                         points = parseInt(
-                            scoreDiv.textContent?.replace(" points", "") ||
-                            "0",
+                            scoreDiv.textContent?.replace(" points", "") || "0",
                         );
                 }
             } else if (nameInput) {
@@ -256,8 +253,7 @@ const start = () => {
     };
 
     const handleAutoplay = () => {
-        if (sessionStorage.getItem("skribbltypo-autoplay") !== "true")
-            return;
+        if (sessionStorage.getItem("skribbltypo-autoplay") !== "true") return;
 
         logger.debug(
             "[skribbltypo-desktop] Autoplay detected, waiting for play button...",
@@ -300,13 +296,8 @@ const start = () => {
             setTimeout(() => {
                 clearInterval(interval);
                 observer.disconnect();
-                if (
-                    sessionStorage.getItem("skribbltypo-autoplay") ===
-                    "true"
-                ) {
-                    logger.debug(
-                        "[skribbltypo-desktop] Autoplay timed out",
-                    );
+                if (sessionStorage.getItem("skribbltypo-autoplay") === "true") {
+                    logger.debug("[skribbltypo-desktop] Autoplay timed out");
                     sessionStorage.removeItem("skribbltypo-autoplay");
                 }
             }, 10000);
