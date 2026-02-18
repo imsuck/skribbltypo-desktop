@@ -5,12 +5,15 @@
     "main": "dist/main.js",
     "license": "MIT",
     "scripts": {
-        "start": "vite",
-        "build": "vite build",
-        "app:dir": "vite build && electron-builder --dir",
-        "app:release": "vite build && electron-builder"
+        "start": "node scripts/bundle-guest.js && vite",
+        "build": "node scripts/bundle-guest.js && vite build",
+        "app:dir": "node scripts/bundle-guest.js && vite build && electron-builder --dir",
+        "app:release": "node scripts/bundle-guest.js && vite build && electron-builder"
     },
     "build": {
+        "appId": "skribbltypo-desktop",
+        "productName": "Skribbltypo Desktop",
+        "executableName": "skribbltypo-desktop",
         "npmArgs": [
             "--production"
         ],

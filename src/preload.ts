@@ -1,19 +1,10 @@
 import { contextBridge, ipcRenderer, webFrame } from "electron";
-import type { SetActivity } from "@visoftware/discord-rpc";
+import { IPCChannel, type IElectronAPI } from "./common/ipc.js";
 import { logger } from "./logger.js";
 import { parseSocketIO } from "./utils/socket-io.js";
 
-export interface IElectronAPI {
-    updateScript: () => void;
-    showNotification: (title: string, body: string) => void;
-    updatePresence: (data: SetActivity) => void;
-    lobbyData: () => any | null;
-    getScriptBundle: () => Promise<string>;
-    isGameLoaded: () => boolean;
-    onGameLoaded: (callback: () => void) => void;
-}
+import { interceptorScript } from "./guest/bundles.ts";
 
-// TODO: type this properly
 let internalLobbyData: any | null = null;
 let gameLoaded: boolean = false;
 
@@ -23,7 +14,6 @@ window.addEventListener("message", (event: MessageEvent<any>) => {
             let payload: any = event.data.data;
 
             const parsed = parseSocketIO(payload);
-            // We want to intercept only messages
             if (!parsed || parsed.engineType !== 4 || parsed.socketType !== 2) {
                 return;
             }
@@ -42,9 +32,7 @@ window.addEventListener("message", (event: MessageEvent<any>) => {
                 return;
             }
 
-            // Maybe I should clean this up some day
             internalLobbyData = payload;
-
             logger.debug(
                 "[skribbltypo-desktop] Parsed data:",
                 internalLobbyData,
@@ -57,12 +45,13 @@ window.addEventListener("message", (event: MessageEvent<any>) => {
 });
 
 contextBridge.exposeInMainWorld("electronAPI", {
-    updateScript: () => ipcRenderer.send("update-script"),
+    updateScript: () => ipcRenderer.send(IPCChannel.UPDATE_SCRIPT),
     showNotification: (title, body) =>
-        ipcRenderer.send("show-notification", { title, body }),
-    updatePresence: (data) => ipcRenderer.send("update-presence", data),
+        ipcRenderer.send(IPCChannel.SHOW_NOTIFICATION, { title, body }),
+    updatePresence: (data) =>
+        ipcRenderer.send(IPCChannel.UPDATE_PRESENCE, data),
     lobbyData: () => internalLobbyData,
-    getScriptBundle: () => ipcRenderer.invoke("get-script-bundle"),
+    getScriptBundle: () => ipcRenderer.invoke(IPCChannel.GET_SCRIPT_BUNDLE),
     isGameLoaded: () => gameLoaded,
     onGameLoaded: (callback) => {
         if (gameLoaded) {
@@ -75,80 +64,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
     },
 } as IElectronAPI);
 
-const script: string = `
-(() => {
-    const NativeWS = window.WebSocket;
+webFrame.executeJavaScript(interceptorScript);
 
-    function PatchedWebSocket(...args) {
-        const ws = Reflect.construct(NativeWS, args, PatchedWebSocket);
-
-        ws.addEventListener("message", (event) => {
-            window.postMessage({ type: "INTERCEPTED_DATA", data: event.data }, "*");
-        });
-
-        return ws;
-    }
-
-    PatchedWebSocket.prototype = NativeWS.prototype;
-
-    Object.assign(PatchedWebSocket, {
-        CONNECTING: NativeWS.CONNECTING,
-        OPEN: NativeWS.OPEN,
-        CLOSING: NativeWS.CLOSING,
-        CLOSED: NativeWS.CLOSED,
-    });
-
-    window.WebSocket = PatchedWebSocket;
-
-    console.debug("[skribbltypo-desktop] WebSocket Overwritten");
-
-    // Fallback timer
-    const fallback = setTimeout(() => {
-        window.postMessage({ type: "GAME_LOADED" }, "*");
-        window.dispatchEvent(new CustomEvent("skribbltypo:game-loaded"));
-    }, 10000);
-
-    const onLoaded = () => {
-        clearTimeout(fallback);
-        window.postMessage({ type: "GAME_LOADED" }, "*");
-        window.dispatchEvent(new CustomEvent("skribbltypo:game-loaded"));
-    };
-
-    const setupBodyObserver = () => {
-        if (document.body.dataset["typo_loaded"] === "true") {
-            onLoaded();
-            return;
-        }
-
-        const observer = new MutationObserver(() => {
-            if (document.body.dataset["typo_loaded"] === "true") {
-                onLoaded();
-                observer.disconnect();
-            }
-        });
-
-        observer.observe(document.body, {
-            attributes: true,
-            attributeFilter: ["data-typo_loaded"],
-        });
-    };
-
-    if (document.body) {
-        setupBodyObserver();
-    } else {
-        const bodyWatcher = new MutationObserver(() => {
-            if (document.body) {
-                bodyWatcher.disconnect();
-                setupBodyObserver();
-            }
-        });
-        bodyWatcher.observe(document.documentElement, { childList: true });
-    }
-})();
-`;
-webFrame.executeJavaScript(script);
-
-ipcRenderer.invoke("get-script-bundle").then((bundle: string) => {
+ipcRenderer.invoke(IPCChannel.GET_SCRIPT_BUNDLE).then((bundle: string) => {
     webFrame.executeJavaScript(bundle);
 });
 

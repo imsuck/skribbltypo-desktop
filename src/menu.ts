@@ -1,7 +1,7 @@
 import { BrowserWindow, clipboard, Menu, MenuItem } from "electron";
-
-import { ScriptManager } from "./script-manager";
+import { ScriptManager } from "./script-manager.js";
 import { logger } from "./logger.js";
+import { joinPopupScript } from "./guest/bundles.ts";
 
 const mainMenu = new Menu();
 
@@ -21,15 +21,11 @@ export function setupMenu(
                 const cbContent = clipboard.readText();
                 const getId = (str: string): string | null => {
                     str = str.trim();
-                    // Match full URL, partial URL, or raw code
                     const regex =
                         /^(?:https?:\/\/)?(?:www\.)?skribbl\.io\/\?\s*([A-Za-z0-9]{8})$|^([A-Za-z0-9]{8})$/;
 
                     const match = str.match(regex);
-
                     if (!match) return null;
-
-                    // Code may be in group 1 (URL) or group 2 (raw)
                     return match[1] || match[2] || null;
                 };
                 const id: string | null = getId(cbContent);
@@ -39,53 +35,7 @@ export function setupMenu(
                         window.location.href = "https://skribbl.io/?${id}";
                     `);
                 } else {
-                    mainWindow.webContents.executeJavaScript(`
-                        (() => {
-                            if (document.getElementById("skribbltypo-join-popup")) return;
-                            const container = document.createElement("div");
-                            container.id = "skribbltypo-join-popup";
-                            container.innerHTML = \`
-                                <h2>Join Game</h2>
-                                <input type="text" id="skribbltypo-join-input" placeholder="Enter game code or URL" maxlength="28">
-                                <div class="popup-buttons">
-                                    <button id="skribbltypo-join-btn">Join</button>
-                                    <button id="skribbltypo-join-cancel-btn">Cancel</button>
-                                </div>
-                            \`;
-                            document.body.appendChild(container);
-
-                            const input = document.getElementById("skribbltypo-join-input");
-                            const joinBtn = document.getElementById("skribbltypo-join-btn");
-                            const cancelBtn = document.getElementById("skribbltypo-join-cancel-btn");
-
-                            input.focus();
-
-                            const join = () => {
-                                let val = input.value.trim();
-                                if (!val) return;
-                                
-                                // Basic cleanup: extract ID if full URL was pasted
-                                const match = val.match(/(?:[?&])?([A-Za-z0-9]{8})$/);
-                                const id = match ? match[1] : val;
-
-                                if (id.length === 8) {
-                                    sessionStorage.setItem("skribbltypo-autoplay", "true");
-                                    window.location.href = "https://skribbl.io/?" + id;
-                                    container.remove();
-                                } else {
-                                    input.style.borderColor = "var(--COLOR_BUTTON_DANGER_BG)";
-                                }
-                            };
-
-                            joinBtn.onclick = join;
-                            cancelBtn.onclick = () => container.remove();
-                            
-                            input.onkeydown = (e) => {
-                                if (e.key === "Enter") join();
-                                if (e.key === "Escape") container.remove();
-                            };
-                        })();
-                    `);
+                    mainWindow.webContents.executeJavaScript(joinPopupScript);
                 }
             },
             accelerator: "F4",

@@ -1,8 +1,8 @@
 import { type SetActivity } from "@visoftware/discord-rpc";
 import { type GatewayActivityButton } from "discord-api-types/v10";
 
-import { logger } from "./logger.js";
-import { type IElectronAPI } from "./preload.js";
+import { logger } from "../logger.ts";
+import { type IElectronAPI } from "../common/ipc.ts";
 
 declare global {
     interface Window {
@@ -41,7 +41,7 @@ const LANGUAGE_CODES: Record<string, string> = {
     Turkish: "tr",
 };
 
-(() => {
+const start = () => {
     logger.debug("[skribbltypo-desktop] Game Observer starting...");
 
     const observeGameEvents = () => {
@@ -127,8 +127,8 @@ const LANGUAGE_CODES: Record<string, string> = {
                 const lobbyId: string | null =
                     window.electronAPI.lobbyData()?.id;
                 const playerCount: number =
-                    document.querySelector(".players-list")?.children.length ||
-                    0;
+                    document.querySelector(".players-list")?.children
+                        .length || 0;
                 const buttons: GatewayActivityButton[] = [];
                 logger.debug("[skribbltypo-desktop] lobbyId:", lobbyId);
                 if (lobbyId && playerCount < maxPlayers) {
@@ -202,15 +202,18 @@ const LANGUAGE_CODES: Record<string, string> = {
                     .trim();
                 const playerEntry = me.closest(".player");
                 if (playerEntry) {
-                    const rankDiv = playerEntry.querySelector(".player-rank");
-                    const scoreDiv = playerEntry.querySelector(".player-score");
+                    const rankDiv =
+                        playerEntry.querySelector(".player-rank");
+                    const scoreDiv =
+                        playerEntry.querySelector(".player-score");
                     if (rankDiv)
                         rank = parseInt(
                             rankDiv.textContent?.replace("#", "") || "0",
                         );
                     if (scoreDiv)
                         points = parseInt(
-                            scoreDiv.textContent?.replace(" points", "") || "0",
+                            scoreDiv.textContent?.replace(" points", "") ||
+                            "0",
                         );
                 }
             } else if (nameInput) {
@@ -253,62 +256,61 @@ const LANGUAGE_CODES: Record<string, string> = {
     };
 
     const handleAutoplay = () => {
-        if (sessionStorage.getItem("skribbltypo-autoplay") !== "true") return;
+        if (sessionStorage.getItem("skribbltypo-autoplay") !== "true")
+            return;
 
-        window.electronAPI.onGameLoaded(() => {
-            logger.debug(
-                "[skribbltypo-desktop] Autoplay detected, waiting for play button...",
-            );
+        logger.debug(
+            "[skribbltypo-desktop] Autoplay detected, waiting for play button...",
+        );
 
-            const tryClick = () => {
-                const playBtn = document.querySelector(
-                    ".button-play",
-                ) as HTMLButtonElement;
-                if (playBtn && playBtn.offsetParent !== null) {
-                    // Check if visible
-                    logger.debug(
-                        "[skribbltypo-desktop] Play button found, clicking...",
-                    );
-                    playBtn.click();
-                    sessionStorage.removeItem("skribbltypo-autoplay");
-                    return true;
-                }
-                return false;
-            };
+        const tryClick = () => {
+            const playBtn = document.querySelector(
+                ".button-play",
+            ) as HTMLButtonElement;
+            if (playBtn && playBtn.offsetParent !== null) {
+                // Check if visible
+                logger.debug(
+                    "[skribbltypo-desktop] Play button found, clicking...",
+                );
+                playBtn.click();
+                sessionStorage.removeItem("skribbltypo-autoplay");
+                return true;
+            }
+            return false;
+        };
 
-            if (!tryClick()) {
-                const observer = new MutationObserver(() => {
-                    if (tryClick()) observer.disconnect();
-                });
-                observer.observe(document.body, {
-                    childList: true,
-                    subtree: true,
-                });
+        if (!tryClick()) {
+            const observer = new MutationObserver(() => {
+                if (tryClick()) observer.disconnect();
+            });
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+            });
 
-                // Fallback interval just in case
-                const interval = setInterval(() => {
-                    if (tryClick()) {
-                        clearInterval(interval);
-                        observer.disconnect();
-                    }
-                }, 500);
-
-                // Safety timeout
-                setTimeout(() => {
+            // Fallback interval just in case
+            const interval = setInterval(() => {
+                if (tryClick()) {
                     clearInterval(interval);
                     observer.disconnect();
-                    if (
-                        sessionStorage.getItem("skribbltypo-autoplay") ===
-                        "true"
-                    ) {
-                        logger.debug(
-                            "[skribbltypo-desktop] Autoplay timed out",
-                        );
-                        sessionStorage.removeItem("skribbltypo-autoplay");
-                    }
-                }, 10000);
-            }
-        });
+                }
+            }, 500);
+
+            // Safety timeout
+            setTimeout(() => {
+                clearInterval(interval);
+                observer.disconnect();
+                if (
+                    sessionStorage.getItem("skribbltypo-autoplay") ===
+                    "true"
+                ) {
+                    logger.debug(
+                        "[skribbltypo-desktop] Autoplay timed out",
+                    );
+                    sessionStorage.removeItem("skribbltypo-autoplay");
+                }
+            }, 10000);
+        }
     };
 
     const rootObserver = new MutationObserver((_mutations, observer) => {
@@ -339,4 +341,6 @@ const LANGUAGE_CODES: Record<string, string> = {
     }
 
     handleAutoplay();
-})();
+};
+
+window.electronAPI.onGameLoaded(start);
