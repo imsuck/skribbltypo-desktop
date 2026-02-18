@@ -45,8 +45,10 @@ export class IPCManager {
         ipcMain.on(
             IPCChannel.SHOW_NOTIFICATION,
             (_event, { title, body }: NotificationPayload) => {
-                const mainWindow = this.windowManager.getWindow();
-                if (mainWindow && mainWindow.isFocused()) return;
+                // we need some renderer to send the IPC message to main thread
+                // so the window definitely exists
+                const mainWindow = this.windowManager.getWindow()!;
+                if (mainWindow.isFocused()) return;
 
                 const notification = new Notification({
                     title,

@@ -11,6 +11,9 @@
         "app:release": "node scripts/bundle-guest.js && vite build && electron-builder"
     },
     "build": {
+        "appId": "skribbltypo-desktop",
+        "productName": "Skribbltypo Desktop",
+        "executableName": "skribbltypo-desktop",
         "npmArgs": [
             "--production"
         ],

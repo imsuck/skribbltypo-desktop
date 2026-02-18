@@ -1,4 +1,10 @@
 import { app, BrowserWindow } from "electron";
+
+app.name = "Skribbltypo Desktop";
+if (process.platform === "linux") {
+    app.setAppUserModelId("skribbltypo-desktop");
+}
+
 import { logger } from "./logger.js";
 import { ScriptManager } from "./script-manager.js";
 import { DiscordRPCManager } from "./discord-rpc.js";
