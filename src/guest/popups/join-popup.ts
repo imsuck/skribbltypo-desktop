@@ -1,8 +1,7 @@
 import { logger } from "../../logger.ts";
 
-(() => {
+if (!document.getElementById("skribbltypo-join-popup")) {
     logger.debug("[skribbltypo-desktop] Join Popup initializing...");
-    if (document.getElementById("skribbltypo-join-popup")) return;
     const container = document.createElement("div");
     container.id = "skribbltypo-join-popup";
     container.innerHTML = `
@@ -54,4 +53,4 @@ import { logger } from "../../logger.ts";
             if (e.key === "Escape") container.remove();
         };
     }
-})();
+}
