@@ -1,6 +1,5 @@
 import { app, BrowserWindow } from "electron";
 
-app.name = "Skribbltypo Desktop";
 if (process.platform === "linux") {
     app.setAppUserModelId("skribbltypo-desktop");
 }

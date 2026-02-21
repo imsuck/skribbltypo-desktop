@@ -12,7 +12,7 @@
     },
     "build": {
         "appId": "skribbltypo-desktop",
-        "productName": "Skribbltypo Desktop",
+        "productName": "skribbltypo-desktop",
         "executableName": "skribbltypo-desktop",
         "npmArgs": [
             "--production"
