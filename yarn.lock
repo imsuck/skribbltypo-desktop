@@ -525,7 +525,7 @@
   resolved "https://registry.npmjs.org/@types/ms/-/ms-2.1.0.tgz#052aa67a48eccc4309d7f0191b7e41434b90bb78"
   integrity sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==
 
-"@types/node@*", "@types/node@^25.0.9":
+"@types/node@*", "@types/node@^25.5.0":
   version "25.5.0"
   resolved "https://registry.npmjs.org/@types/node/-/node-25.5.0.tgz#5c99f37c443d9ccc4985866913f1ed364217da31"
   integrity sha512-jp2P3tQMSxWugkCUKLRPVUpGaL5MVFwF8RDuSRztfwgN1wmqJeMSbKlnEtQqU8UrhTmzEmZdu2I6v2dpp7XIxw==
@@ -1054,7 +1054,7 @@ discord-api-types@^0.38.16, discord-api-types@^0.38.33, discord-api-types@^0.38.
   resolved "https://registry.npmjs.org/discord-api-types/-/discord-api-types-0.38.37.tgz#0e9fa948e8483b0ff3b63a1902ea9a9c9b748921"
   integrity sha512-Cv47jzY1jkGkh5sv0bfHYqGgKOWO1peOrGMkDFM4UmaGMOTgOW8QSexhvixa9sVOiz8MnVOBryWYyw/CEVhj7w==
 
-discord-api-types@^0.38.37:
+discord-api-types@^0.38.42:
   version "0.38.42"
   resolved "https://registry.npmjs.org/discord-api-types/-/discord-api-types-0.38.42.tgz#e5732b1ccf36fe7483b0bbec4ecf53260485ac9e"
   integrity sha512-qs1kya7S84r5RR8m9kgttywGrmmoHaRifU1askAoi+wkoSefLpZP6aGXusjNw5b0jD3zOg3LTwUa3Tf2iHIceQ==
@@ -1119,7 +1119,7 @@ ejs@^3.1.8:
   dependencies:
     jake "^10.8.5"
 
-electron-builder@^26.4.0:
+electron-builder@^26.8.1:
   version "26.8.1"
   resolved "https://registry.npmjs.org/electron-builder/-/electron-builder-26.8.1.tgz#d49056b2fe5d37f0f94aa2eb0e1db38f261fc8c0"
   integrity sha512-uWhx1r74NGpCagG0ULs/P9Nqv2nsoo+7eo4fLUOB8L8MdWltq9odW/uuLXMFCDGnPafknYLZgjNX0ZIFRzOQAw==
@@ -1149,10 +1149,10 @@ electron-publish@26.8.1:
     lazy-val "^1.0.5"
     mime "^2.5.2"
 
-electron@^40.0.0:
-  version "40.8.5"
-  resolved "https://registry.npmjs.org/electron/-/electron-40.8.5.tgz#a7e459a2eee35bd02c32da87170c920383656c4d"
-  integrity sha512-pgTY/VPQKaiU4sTjfU96iyxCXrFm4htVPCMRT4b7q9ijNTRgtLmLvcmzp2G4e7xDrq9p7OLHSmu1rBKFf6Y1/A==
+electron@^41.1.0:
+  version "41.1.0"
+  resolved "https://registry.npmjs.org/electron/-/electron-41.1.0.tgz#21eff66ca8b86ae4c1c06512cf00bfae02e5edb4"
+  integrity sha512-0XRFyxRqetmqtkkBvV++wGbHYJ7bD++f6EgJW8y9kX4pPRagwlmKDtzqXZhKiu0DIQppm3sXxzHWK9GYP91OKQ==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^24.9.0"
@@ -2505,10 +2505,10 @@ type-fest@^0.13.1:
   resolved "https://registry.npmjs.org/type-fest/-/type-fest-0.13.1.tgz#0172cb5bce80b0bd542ea348db50c7e21834d934"
   integrity sha512-34R7HTnG0XIJcBSn5XhDd7nNFPRcXYRZrBB2O2jdKqYODldSzBAqzsWoZYYvduky73toYS/ESqxPvkDf/F0XMg==
 
-typescript@^5.9.3:
-  version "5.9.3"
-  resolved "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz"
-  integrity sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==
+typescript@^6.0.2:
+  version "6.0.2"
+  resolved "https://registry.npmjs.org/typescript/-/typescript-6.0.2.tgz#0b1bfb15f68c64b97032f3d78abbf98bdbba501f"
+  integrity sha512-bGdAIrZ0wiGDo5l8c++HWtbaNCWTS4UTv7RaTH/ThVIgjkveJt83m74bBHMJkuCbslY8ixgLBVZJIOiQlQTjfQ==
 
 undici-types@~7.16.0:
   version "7.16.0"
@@ -2575,7 +2575,7 @@ verror@^1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vite-plugin-electron@^0.29.0:
+vite-plugin-electron@^0.29.1:
   version "0.29.1"
   resolved "https://registry.npmjs.org/vite-plugin-electron/-/vite-plugin-electron-0.29.1.tgz#f7d2934aa2c59a287887f58e599a6d8c0df5ae0b"
   integrity sha512-AejNed5BgHFnuw8h5puTa61C6vdP4ydbsbo/uVjH1fTdHAlCDz1+o6pDQ/scQj1udDrGvH01+vTbzQh/vMnR9w==
