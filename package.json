@@ -1,6 +1,6 @@
 {
     "name": "skribbltypo-desktop",
-    "version": "1.1.5",
+    "version": "1.1.6",
     "type": "module",
     "main": "dist/main.js",
     "license": "MIT",
@@ -67,13 +67,13 @@
         ]
     },
     "devDependencies": {
-        "@types/node": "^25.0.9",
-        "discord-api-types": "^0.38.37",
-        "electron": "^40.0.0",
-        "electron-builder": "^26.4.0",
-        "typescript": "^5.9.3",
+        "@types/node": "^25.5.0",
+        "discord-api-types": "^0.38.42",
+        "electron": "^41.1.0",
+        "electron-builder": "^26.8.1",
+        "typescript": "^6.0.2",
         "vite": "^7.3.1",
-        "vite-plugin-electron": "^0.29.0"
+        "vite-plugin-electron": "^0.29.1"
     },
     "dependencies": {
         "@visoftware/discord-rpc": "^1.4.1"
