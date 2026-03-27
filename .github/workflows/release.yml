@@ -1,69 +1,57 @@
 name: Build and Release
 
 on:
-    release:
-        types: [created]
+  push:
+    tags:
+      - "v*"
 
 permissions:
-    contents: write
+  contents: write
 
 jobs:
-    build:
-        runs-on: ${{ matrix.os }}
+  build:
+    runs-on: ${{ matrix.os }}
 
-        strategy:
-            matrix:
-                include:
-                    - os: ubuntu-latest
-                      platform: linux
-                    - os: windows-latest
-                      platform: windows
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "24"
-                  cache: "yarn"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "yarn"
 
-            - name: Install dependencies
-              run: yarn install --frozen-lockfile
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-            - name: Build application
-              run: yarn app:release
-              env:
-                  NODE_ENV: production
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build application
+        run: yarn app:release
+        env:
+          NODE_ENV: production
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Upload Linux artifacts
-              if: matrix.platform == 'linux'
-              uses: actions/upload-artifact@v4
-              with:
-                  name: linux-build
-                  path: release/*.AppImage
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
 
-            - name: Upload Windows artifacts
-              if: matrix.platform == 'windows'
-              uses: actions/upload-artifact@v4
-              with:
-                  name: windows-build
-                  path: release/*.exe
+          # THIS is the important line:
+          generate_release_notes: true
 
-            - name: Upload release assets (Linux)
-              if: matrix.platform == 'linux'
-              uses: softprops/action-gh-release@v1
-              with:
-                  files: release/*.AppImage
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Upload release assets (Windows)
-              if: matrix.platform == 'windows'
-              uses: softprops/action-gh-release@v1
-              with:
-                  files: release/*.exe
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            release/*.AppImage
+            release/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
